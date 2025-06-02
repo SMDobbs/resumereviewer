@@ -1,47 +1,12 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
-import { ChartBarIcon, BookOpenIcon, BriefcaseIcon, UserGroupIcon, SparklesIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
-import HeroSection from '@/components/landing/HeroSection'
-import WhyAnalystHubWorks from '@/components/landing/WhyAnalystHubWorks'
-import RecommendedResources from '@/components/landing/CoursePreview'
-import FeaturesSection from '@/components/landing/FeaturesSection'
-import CareerPathVisualization from '@/components/landing/CareerPathVisualization'
-import PricingSection from '@/components/landing/PricingSection'
-import SuccessStories from '@/components/landing/SuccessStories'
-import TestimonialsSection from '@/components/landing/TestimonialsSection'
-import FAQSection from '@/components/landing/FAQSection'
-import CTASection from '@/components/landing/CTASection'
+import { ChartBarIcon, BookOpenIcon, SparklesIcon, UserGroupIcon, DocumentTextIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 
-export default function Home() {
-  // Demo state - in a real app, this would come from your auth system
-  const [isSignedIn, setIsSignedIn] = useState(false)
-
-  // Demo user data - in a real app, this would come from your auth system
+export default function DashboardPage() {
   const user = {
     firstName: "Demo User",
     email: "demo@analyticsmentor.com"
   }
 
-  // If user is not signed in, show marketing landing page
-  if (!isSignedIn) {
-    return (
-      <div className="min-h-screen">
-        <HeroSection />
-        <WhyAnalystHubWorks />
-        <FeaturesSection />
-        <RecommendedResources />
-        <PricingSection />
-        <SuccessStories />
-        <TestimonialsSection />
-        <FAQSection />
-        <CTASection />
-      </div>
-    )
-  }
-
-  // If user is signed in, show dashboard view
   return (
     <div className="min-h-screen bg-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -147,7 +112,7 @@ export default function Home() {
                 <Link href="/tools/linkedin-optimizer" className="group block">
                   <div className="glass rounded-lg p-4 card-hover">
                     <div className="w-10 h-10 bg-yellow-400/20 rounded-lg flex items-center justify-center mb-3">
-                      <BriefcaseIcon className="h-5 w-5 text-yellow-400" />
+                      <DocumentTextIcon className="h-5 w-5 text-yellow-400" />
                     </div>
                     <h3 className="font-semibold mb-2 group-hover:text-green-400 transition-colors">
                       LinkedIn Optimizer
@@ -220,7 +185,7 @@ export default function Home() {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            {/* Quick Start Guide */}
+            {/* Your Roadmap */}
             <div className="glass rounded-xl p-6">
               <h3 className="text-lg font-semibold mb-4">Your Roadmap</h3>
               <ol className="space-y-3">
@@ -286,22 +251,27 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Demo Toggle (remove in production) */}
+            {/* Recent Activity */}
             <div className="glass rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4">Demo Mode</h3>
-              <button 
-                onClick={() => setIsSignedIn(!isSignedIn)}
-                className="w-full px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors"
-              >
-                {isSignedIn ? 'View Landing Page' : 'View Dashboard'}
-              </button>
-              <p className="text-xs text-gray-500 mt-2">
-                Toggle between marketing and dashboard views
-              </p>
+              <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center text-gray-400">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                  You read "SQL Skills That Matter"
+                </div>
+                <div className="flex items-center text-gray-400">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                  You used the Resume Reviewer
+                </div>
+                <div className="flex items-center text-gray-400">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                  You downloaded SQL Guide
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   )
-}
+} 

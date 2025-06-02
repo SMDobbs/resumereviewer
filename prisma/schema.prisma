@@ -1,0 +1,214 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  password  String
+  role      Role     @default(USER)
+  
+  // Subscription info
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  subscriptionId     String?
+  trialEndsAt        DateTime?
+  subscriptionEndsAt DateTime?
+  
+  // Profile info
+  currentRole        String?
+  experience         Int?                // Years of experience
+  industry           String?
+  goals              String?
+  
+  // Progress tracking
+  courseProgress     CourseProgress[]
+  toolUsage         ToolUsage[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    CourseCategory
+  difficulty  Difficulty
+  duration    Int               // Duration in minutes
+  order       Int               // Display order
+  
+  // Content
+  modules     Module[]
+  
+  // Tracking
+  progress    CourseProgress[]
+  
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("courses")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  content     String   // Rich text content
+  videoUrl    String?
+  duration    Int      // Duration in minutes
+  order       Int      // Order within course
+  
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  // Tracking
+  completions ModuleCompletion[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("modules")
+}
+
+model CourseProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  courseId     String
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  completedModules Int  @default(0)
+  totalModules     Int
+  isCompleted      Boolean @default(false)
+  lastAccessedAt   DateTime @default(now())
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([userId, courseId])
+  @@map("course_progress")
+}
+
+model ModuleCompletion {
+  id       String   @id @default(cuid())
+  userId   String
+  moduleId String
+  
+  module   Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  completedAt DateTime @default(now())
+  
+  @@unique([userId, moduleId])
+  @@map("module_completions")
+}
+
+model Tool {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    ToolCategory
+  url         String   // Route to the tool
+  isPremium   Boolean  @default(false)
+  
+  usage       ToolUsage[]
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("tools")
+}
+
+model ToolUsage {
+  id     String @id @default(cuid())
+  userId String
+  toolId String
+  
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tool   Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  
+  usedAt DateTime @default(now())
+  
+  @@map("tool_usage")
+}
+
+model BookingRequest {
+  id          String      @id @default(cuid())
+  email       String
+  firstName   String
+  lastName    String
+  serviceType ServiceType
+  preferredDate DateTime?
+  message     String?
+  status      BookingStatus @default(PENDING)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("booking_requests")
+}
+
+// Enums
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum CourseCategory {
+  TECHNICAL
+  CAREER
+  BUSINESS
+  INDUSTRY
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ToolCategory {
+  RESUME
+  INTERVIEW
+  SALARY
+  PLANNING
+  PORTFOLIO
+  NETWORKING
+}
+
+enum ServiceType {
+  MOCK_INTERVIEW
+  CAREER_COACHING
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
