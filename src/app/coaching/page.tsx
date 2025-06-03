@@ -100,7 +100,7 @@ export default function CoachingPage() {
                   <ClockIcon className="h-4 w-4 mr-1" />
                   {option.duration}
                 </span>
-                <span className="text-2xl font-bold text-green-400">Included</span>
+                <span className="text-2xl font-bold text-green-400">{option.price}</span>
               </div>
             </div>
 
