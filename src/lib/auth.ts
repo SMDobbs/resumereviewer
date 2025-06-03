@@ -12,6 +12,7 @@ export interface SessionPayload {
   email: string
   role: string
   expiresAt: Date
+  [key: string]: string | Date | number | boolean
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -36,7 +37,7 @@ export async function verifySession(session: string): Promise<SessionPayload | n
       algorithms: ['HS256']
     })
     return payload as SessionPayload
-  } catch (error) {
+  } catch {
     return null
   }
 }

@@ -3,6 +3,8 @@ import { stripe } from '@/lib/stripe'
 import { prisma, connectWithRetry } from '@/lib/prisma'
 import { createSession, setSessionCookie } from '@/lib/auth'
 
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const { sessionId } = await request.json()

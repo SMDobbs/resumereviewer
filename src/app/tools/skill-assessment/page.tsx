@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 
 interface Question {
   id: number

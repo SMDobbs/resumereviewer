@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteSessionCookie } from '../../../../lib/auth'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const response = NextResponse.json({ 
     message: 'Cookies cleared successfully',
     redirect: '/'
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   return response
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const response = NextResponse.json({ 
     message: 'Cookies cleared successfully' 
   })

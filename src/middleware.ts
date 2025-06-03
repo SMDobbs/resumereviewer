@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
     try {
       const session = await verifySession(sessionCookie)
       isAuthenticated = !!session
-    } catch (error) {
+    } catch {
       // JWT verification failed, user is not authenticated
       isAuthenticated = false
     }

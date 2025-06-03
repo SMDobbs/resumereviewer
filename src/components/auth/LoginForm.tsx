@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
 
 export default function LoginForm() {
@@ -66,7 +66,7 @@ export default function LoginForm() {
         }),
       })
 
-      const data = await response.json()
+      const _data = await response.json()
 
       if (!response.ok) {
         // If demo user doesn't exist, create one
@@ -96,7 +96,7 @@ export default function LoginForm() {
             }),
           })
 
-          const loginData = await loginResponse.json()
+          const _loginData = await loginResponse.json()
           if (loginResponse.ok) {
             await refreshUser()
             router.push('/dashboard')
@@ -112,7 +112,7 @@ export default function LoginForm() {
       
       // Redirect to dashboard after successful login
       router.push('/dashboard')
-    } catch (error) {
+    } catch {
       setError('Demo login temporarily unavailable. Please try the skill assessment instead.')
     } finally {
       setLoading(false)

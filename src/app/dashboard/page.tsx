@@ -1,7 +1,7 @@
 'use client'
 
 import { useUser } from '@/lib/context/UserContext'
-import { UserIcon, CalendarDaysIcon, ShieldCheckIcon, CreditCardIcon } from '@heroicons/react/24/outline'
+import { UserIcon, CalendarDaysIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 
 export default function DashboardPage() {
   const { user, loading, logout } = useUser()

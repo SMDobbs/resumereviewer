@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SparklesIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
@@ -15,7 +15,6 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
   const searchParams = useSearchParams()
   const cancelled = searchParams.get('cancelled')
 

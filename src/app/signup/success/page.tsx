@@ -1,31 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
 
-export default function SignupSuccessPage() {
+function SignupSuccessContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [error, setError] = useState<string>('')
   const searchParams = useSearchParams()
   const router = useRouter()
   const { refreshUser } = useUser()
 
-  useEffect(() => {
-    const sessionId = searchParams.get('session_id')
-    
-    if (!sessionId) {
-      setError('No session ID found. Please try signing up again.')
-      setStatus('error')
-      return
-    }
-
-    verifySession(sessionId)
-  }, [searchParams])
-
-  const verifySession = async (sessionId: string) => {
+  const verifySession = useCallback(async (sessionId: string) => {
     try {
       const response = await fetch('/api/stripe/verify-session', {
         method: 'POST',
@@ -55,7 +43,19 @@ export default function SignupSuccessPage() {
       setError(error instanceof Error ? error.message : 'Something went wrong')
       setStatus('error')
     }
-  }
+  }, [refreshUser, router])
+
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id')
+    
+    if (!sessionId) {
+      setError('No session ID found. Please try signing up again.')
+      setStatus('error')
+      return
+    }
+
+    verifySession(sessionId)
+  }, [searchParams, verifySession])
 
   if (status === 'loading') {
     return (
@@ -175,5 +175,29 @@ export default function SignupSuccessPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignupSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
+            </div>
+            <h2 className="text-3xl font-extrabold text-white mb-2">
+              Loading...
+            </h2>
+            <p className="text-gray-400">
+              Please wait while we load your page
+            </p>
+          </div>
+        </div>
+      </div>
+    }>
+      <SignupSuccessContent />
+    </Suspense>
   )
 } 

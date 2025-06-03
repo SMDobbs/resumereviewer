@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/prisma'
 import { hashPassword, createSession, setSessionCookie } from '../../../../lib/auth'
 
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -43,8 +45,7 @@ export async function POST(request: NextRequest) {
         email,
         firstName,
         lastName,
-        password: hashedPassword,
-        trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days trial
+        password: hashedPassword
       },
       select: {
         id: true,
@@ -52,8 +53,7 @@ export async function POST(request: NextRequest) {
         firstName: true,
         lastName: true,
         role: true,
-        subscriptionStatus: true,
-        trialEndsAt: true
+        subscriptionStatus: true
       }
     })
 
