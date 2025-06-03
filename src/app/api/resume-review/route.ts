@@ -279,7 +279,7 @@ Analyze this resume against the job criteria. Respond with ONLY the JSON structu
             analyticsExperienceScore: analyticsScoreMatch ? parseInt(analyticsScoreMatch[1]) : 7,
             rawResponse: responseText
           }
-        } catch (fallbackError) {
+        } catch {
           // Final fallback with minimal but useful information
           analysisResult = {
             overallScore: 7,
