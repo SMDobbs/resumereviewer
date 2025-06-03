@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteSessionCookie } from '../../../../lib/auth'
 
+export const runtime = 'nodejs'
+
 export async function GET(_request: NextRequest) {
   const response = NextResponse.json({ 
     message: 'Cookies cleared successfully',
