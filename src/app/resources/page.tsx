@@ -1,9 +1,6 @@
 import { 
   DocumentTextIcon, 
-  ArrowDownTrayIcon, 
-  BookOpenIcon,
   MapIcon,
-  PresentationChartLineIcon,
   ClipboardDocumentListIcon,
   LightBulbIcon,
   StarIcon

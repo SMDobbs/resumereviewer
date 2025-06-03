@@ -1,15 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
-import { ChevronDownIcon, BookOpenIcon, DocumentTextIcon, FolderIcon, SparklesIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { ChevronDownIcon, BookOpenIcon, DocumentTextIcon, FolderIcon, SparklesIcon, UserGroupIcon, UserIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
+import { useUser } from '@/lib/context/UserContext'
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [isSignedIn, setIsSignedIn] = useState(false) // Demo state - replace with real auth
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, loading, logout } = useUser()
 
   const publicNavItems = [
     { href: '/', label: 'Home' },
@@ -41,26 +45,51 @@ const Navigation = () => {
     { href: '/coaching', label: 'Coaching', icon: UserGroupIcon },
   ]
 
-  const navItems = isSignedIn ? protectedNavItems : publicNavItems
+  const navItems = user ? protectedNavItems : publicNavItems
 
   const isActive = (href: string) => pathname === href
 
   const handleSignIn = () => {
-    setIsSignedIn(true)
-    // In a real app, this would redirect to login page or open modal
+    router.push('/login')
   }
 
-  const handleSignOut = () => {
-    setIsSignedIn(false)
-    // In a real app, this would clear session and redirect
+  const handleSignUp = () => {
+    router.push('/signup')
   }
 
-  const toggleDropdown = (label: string) => {
-    setActiveDropdown(activeDropdown === label ? null : label)
+  const handleSignOut = async () => {
+    try {
+      await logout()
+      setIsOpen(false)
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
+  const handleMouseEnter = (label: string) => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current)
+    }
+    setActiveDropdown(label)
+  }
+
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 100) // Small delay to prevent flickering
   }
 
   const closeDropdown = () => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current)
+    }
     setActiveDropdown(null)
+  }
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.firstName) return 'U'
+    return user.firstName.charAt(0).toUpperCase() + (user.lastName?.charAt(0).toUpperCase() || '')
   }
 
   return (
@@ -84,8 +113,8 @@ const Navigation = () => {
                 {item.isDropdown ? (
                   <div 
                     className="relative"
-                    onMouseEnter={() => toggleDropdown(item.label)}
-                    onMouseLeave={closeDropdown}
+                    onMouseEnter={() => handleMouseEnter(item.label)}
+                    onMouseLeave={handleMouseLeave}
                   >
                     <button
                       className="flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-300 hover:text-green-400 hover:bg-green-400/5"
@@ -96,7 +125,7 @@ const Navigation = () => {
                     
                     {/* Dropdown Menu */}
                     {activeDropdown === item.label && (
-                      <div className="absolute top-full left-0 mt-2 w-64 glass rounded-xl border border-gray-700/50 shadow-xl">
+                      <div className="absolute top-full left-0 w-64 glass rounded-xl border border-gray-700/50 shadow-xl">
                         <div className="p-2">
                           {item.dropdownItems?.map((dropdownItem) => {
                             const Icon = dropdownItem.icon
@@ -140,7 +169,9 @@ const Navigation = () => {
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-3 ml-6">
-              {!isSignedIn ? (
+              {loading ? (
+                <div className="w-9 h-9 bg-gray-800 animate-pulse rounded-full"></div>
+              ) : !user ? (
                 <>
                   <button 
                     onClick={handleSignIn}
@@ -149,7 +180,7 @@ const Navigation = () => {
                     Sign In
                   </button>
                   <button 
-                    onClick={handleSignIn}
+                    onClick={handleSignUp}
                     className="btn-primary px-6 py-2.5 text-sm font-semibold shadow-lg hover:shadow-green-400/25"
                   >
                     Get Started
@@ -157,15 +188,56 @@ const Navigation = () => {
                 </>
               ) : (
                 <div className="flex items-center space-x-4">
-                  <div className="w-9 h-9 bg-green-400/20 rounded-full flex items-center justify-center ring-2 ring-green-400/20">
-                    <span className="text-green-400 text-sm font-medium">U</span>
-                  </div>
-                  <button 
-                    onClick={handleSignOut}
-                    className="text-gray-300 hover:text-red-400 transition-colors text-sm font-medium"
+                  {/* User Dropdown */}
+                  <div 
+                    className="relative"
+                    onMouseEnter={() => handleMouseEnter('user')}
+                    onMouseLeave={handleMouseLeave}
                   >
-                    Sign Out
-                  </button>
+                    <button className="flex items-center space-x-3 p-2 rounded-lg hover:bg-green-400/5 transition-colors">
+                      <div className="w-9 h-9 bg-green-400/20 rounded-full flex items-center justify-center ring-2 ring-green-400/20">
+                        <span className="text-green-400 text-sm font-medium">{getUserInitials()}</span>
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-medium text-gray-200">{user.firstName}</div>
+                        <div className="text-xs text-gray-400 capitalize">
+                          {user.subscriptionStatus === 'PREMIUM' ? (
+                            <span className="text-green-400">Premium</span>
+                          ) : (
+                            user.subscriptionStatus.toLowerCase()
+                          )}
+                        </div>
+                      </div>
+                      <ChevronDownIcon className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${activeDropdown === 'user' ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* User Dropdown Menu */}
+                    {activeDropdown === 'user' && (
+                      <div className="absolute top-full right-0 w-56 glass rounded-xl border border-gray-700/50 shadow-xl">
+                        <div className="p-2">
+                          <div className="px-3 py-2 border-b border-gray-700/50 mb-2">
+                            <div className="font-medium text-gray-200">{user.firstName} {user.lastName}</div>
+                            <div className="text-sm text-gray-400">{user.email}</div>
+                          </div>
+                          <Link
+                            href="/dashboard"
+                            className="flex items-center p-3 rounded-lg hover:bg-green-400/5 transition-colors group"
+                            onClick={closeDropdown}
+                          >
+                            <UserIcon className="h-5 w-5 text-green-400 mr-3" />
+                            <span className="text-gray-200 group-hover:text-green-400">Dashboard</span>
+                          </Link>
+                          <button
+                            onClick={handleSignOut}
+                            className="w-full flex items-center p-3 rounded-lg hover:bg-red-400/5 transition-colors group"
+                          >
+                            <ArrowRightOnRectangleIcon className="h-5 w-5 text-red-400 mr-3" />
+                            <span className="text-red-400">Sign Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -174,7 +246,9 @@ const Navigation = () => {
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-4">
             {/* Mobile Auth Buttons */}
-            {!isSignedIn ? (
+            {loading ? (
+              <div className="w-8 h-8 bg-gray-800 animate-pulse rounded-full"></div>
+            ) : !user ? (
               <button 
                 onClick={handleSignIn}
                 className="text-green-400 text-sm font-medium"
@@ -183,7 +257,7 @@ const Navigation = () => {
               </button>
             ) : (
               <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center">
-                <span className="text-green-400 text-sm font-medium">U</span>
+                <span className="text-green-400 text-sm font-medium">{getUserInitials()}</span>
               </div>
             )}
             
@@ -261,29 +335,53 @@ const Navigation = () => {
                 </div>
               ))}
               
-              {/* Mobile Sign Up Button */}
-              {!isSignedIn && (
-                <button 
-                  onClick={() => {
-                    handleSignIn()
-                    setIsOpen(false)
-                  }}
-                  className="w-full mt-6 btn-primary py-3 text-center font-semibold"
-                >
-                  Get Started
-                </button>
-              )}
-              
-              {isSignedIn && (
-                <button 
-                  onClick={() => {
-                    handleSignOut()
-                    setIsOpen(false)
-                  }}
-                  className="w-full mt-6 text-red-400 py-3 text-center font-medium"
-                >
-                  Sign Out
-                </button>
+              {/* Mobile Auth Section */}
+              {!loading && (
+                <div className="mt-6 pt-4 border-t border-gray-800/50">
+                  {!user ? (
+                    <div className="space-y-3">
+                      <button 
+                        onClick={() => {
+                          handleSignIn()
+                          setIsOpen(false)
+                        }}
+                        className="w-full px-3 py-2 text-left rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
+                      >
+                        Sign In
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleSignUp()
+                          setIsOpen(false)
+                        }}
+                        className="w-full btn-primary py-3 text-center font-semibold"
+                      >
+                        Get Started
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="px-3 py-2 text-sm text-gray-400">
+                        Signed in as <span className="text-green-400">{user.firstName}</span>
+                      </div>
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center px-3 py-2 rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <UserIcon className="h-5 w-5 mr-3 text-green-400" />
+                        Dashboard
+                      </Link>
+                      <button 
+                        onClick={handleSignOut}
+                        className="w-full flex items-center px-3 py-2 rounded-lg text-red-400 hover:bg-red-400/5 transition-colors"
+                      >
+                        <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

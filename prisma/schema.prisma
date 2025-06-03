@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -22,11 +22,11 @@ model User {
   password  String
   role      Role     @default(USER)
   
-  // Subscription info
+  // Payment & Premium Access
+  stripeCustomerId   String?
+  stripePaymentId    String?    // Payment intent ID instead of subscription
   subscriptionStatus SubscriptionStatus @default(TRIAL)
-  subscriptionId     String?
-  trialEndsAt        DateTime?
-  subscriptionEndsAt DateTime?
+  purchaseDate       DateTime?  // When they bought premium access
   
   // Profile info
   currentRole        String?
@@ -174,7 +174,7 @@ enum Role {
 
 enum SubscriptionStatus {
   TRIAL
-  ACTIVE
+  PREMIUM
   CANCELLED
   EXPIRED
 }

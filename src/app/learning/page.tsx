@@ -1,5 +1,4 @@
 import { 
-  PlayIcon,
   BookOpenIcon,
   ClockIcon,
   UserGroupIcon,

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import { UserProvider } from "@/lib/context/UserContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,10 +30,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-gray-950 text-white antialiased">
-        <Navigation />
-        <main className="pt-16">
-          {children}
-        </main>
+        <UserProvider>
+          <Navigation />
+          <main className="pt-16">
+            {children}
+          </main>
+        </UserProvider>
       </body>
     </html>
   );

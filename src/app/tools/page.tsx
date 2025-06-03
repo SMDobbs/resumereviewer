@@ -1,14 +1,19 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowLeftIcon, SparklesIcon, UserGroupIcon, DocumentTextIcon, ChartBarIcon, LockClosedIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { useUser } from '@/lib/context/UserContext'
+import Paywall from '@/components/Paywall'
 
 export default function ToolsPage() {
+  const { user } = useUser()
+
   const tools = [
     {
       id: 1,
       title: "AI Resume Reviewer",
       description: "Get instant, expert feedback on your analytics resume with our AI-powered tool trained on successful resumes.",
       icon: DocumentTextIcon,
-      price: "$19/month",
       features: [
         "ATS optimization check",
         "Industry-specific feedback",
@@ -16,7 +21,7 @@ export default function ToolsPage() {
         "Instant improvement suggestions",
         "Before/after comparison"
       ],
-      popular: false,
+      premium: true,
       available: true
     },
     {
@@ -24,7 +29,6 @@ export default function ToolsPage() {
       title: "AI Mock Interviewer",
       description: "Practice analytics interviews with realistic questions and get detailed feedback on your responses.",
       icon: UserGroupIcon,
-      price: "$29/month",
       features: [
         "Real interview questions from top companies",
         "Behavioral and technical scenarios",
@@ -32,6 +36,7 @@ export default function ToolsPage() {
         "Improvement recommendations",
         "Progress tracking"
       ],
+      premium: true,
       popular: true,
       available: true
     },
@@ -40,7 +45,6 @@ export default function ToolsPage() {
       title: "LinkedIn Profile Optimizer",
       description: "Optimize your LinkedIn profile to get noticed by recruiters in the analytics field.",
       icon: SparklesIcon,
-      price: "$15/month",
       features: [
         "Keyword optimization",
         "Profile completeness check",
@@ -48,7 +52,7 @@ export default function ToolsPage() {
         "Headline suggestions",
         "Network growth tips"
       ],
-      popular: false,
+      premium: true,
       available: true
     },
     {
@@ -56,7 +60,6 @@ export default function ToolsPage() {
       title: "Interactive Skill Assessment",
       description: "Comprehensive skills evaluation to identify your strengths and areas for improvement.",
       icon: ChartBarIcon,
-      price: "Free",
       features: [
         "SQL proficiency test",
         "Excel/Spreadsheet skills",
@@ -64,7 +67,7 @@ export default function ToolsPage() {
         "Business acumen assessment",
         "Personalized learning path"
       ],
-      popular: false,
+      premium: false,
       available: true
     }
   ]
@@ -82,12 +85,13 @@ export default function ToolsPage() {
     }
   ]
 
+  const hasAccess = user?.subscriptionStatus === 'PREMIUM'
+
   return (
-    <div className="min-h-screen bg-gray-950 py-8">
+    <div className="min-h-screen bg-gray-950 py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
-          
           <h1 className="text-4xl font-bold mb-4">
             Premium <span className="gradient-text">Analytics Tools</span>
           </h1>
@@ -116,7 +120,7 @@ export default function ToolsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {tools.map((tool) => {
             const Icon = tool.icon
-            return (
+            const toolContent = (
               <div key={tool.id} className={`glass rounded-xl p-8 relative ${tool.popular ? 'ring-2 ring-green-400' : ''}`}>
                 {tool.popular && (
                   <div className="absolute -top-3 right-6 bg-green-400 text-gray-900 px-3 py-1 rounded-full text-sm font-medium">
@@ -132,14 +136,20 @@ export default function ToolsPage() {
                     <div>
                       <h3 className="text-xl font-semibold mb-1">{tool.title}</h3>
                       <div className="flex items-center">
-                        {tool.price === "Free" ? (
-                          <span className="text-lg font-bold text-green-400">FREE</span>
+                        {tool.premium ? (
+                          <div className="flex items-center">
+                            <SparklesIcon className="h-4 w-4 text-green-400 mr-1" />
+                            <span className="text-sm font-medium text-green-400">Premium</span>
+                          </div>
                         ) : (
-                          <span className="text-lg font-bold text-green-400">{tool.price}</span>
+                          <span className="text-lg font-bold text-green-400">FREE</span>
                         )}
                       </div>
                     </div>
                   </div>
+                  {tool.premium && !hasAccess && (
+                    <LockClosedIcon className="h-5 w-5 text-gray-500" />
+                  )}
                 </div>
 
                 <p className="text-gray-400 mb-6">{tool.description}</p>
@@ -157,47 +167,78 @@ export default function ToolsPage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Link 
-                    href={`/tools/${tool.id}`}
-                    className={tool.popular ? "btn-primary w-full text-center" : "w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center"}
-                  >
-                    {tool.price === "Free" ? "Start Free" : "Start Trial"}
-                  </Link>
+                  {tool.premium && !hasAccess ? (
+                    <Link 
+                      href="/signup"
+                      className="w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center"
+                    >
+                      Upgrade to Access
+                    </Link>
+                  ) : (
+                    <Link 
+                      href={tool.premium ? `/tools/${tool.id}` : '/tools/skill-assessment'}
+                      className={tool.popular ? "btn-primary w-full text-center" : "w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center"}
+                    >
+                      {tool.premium ? "Launch Tool" : "Start Free"}
+                    </Link>
+                  )}
                 </div>
               </div>
+            )
+
+            // Don't wrap free tools in paywall
+            if (!tool.premium) {
+              return toolContent
+            }
+
+            // Wrap premium tools in paywall
+            return (
+              <Paywall
+                key={tool.id}
+                title={`${tool.title} - Premium Tool`}
+                description={tool.description}
+                feature={`Access ${tool.title} and all premium analytics tools`}
+              >
+                {toolContent}
+              </Paywall>
             )
           })}
         </div>
 
-        {/* All Tools Bundle */}
-        <div className="glass rounded-xl p-8 bg-gradient-to-br from-green-900/20 to-green-800/20 mb-16">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold mb-2">Complete Tools Bundle</h3>
-            <p className="text-xl text-gray-400">Get access to all premium tools and save 40%</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-400 mb-2">4</div>
-              <p className="text-gray-400">Premium Tools</p>
+        {/* Premium Bundle Section */}
+        <Paywall
+          title="Complete Analytics Toolkit"
+          description="Access all premium tools and advanced features to accelerate your analytics career."
+          feature="All premium tools, coaching, and exclusive content"
+        >
+          <div className="glass rounded-xl p-8 bg-gradient-to-br from-green-900/20 to-green-800/20 mb-16">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold mb-2">Premium Access Unlocked</h3>
+              <p className="text-xl text-gray-400">You have access to all analytics tools and features</p>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-400 mb-2">$39</div>
-              <p className="text-gray-400"><span className="line-through text-gray-500">$63</span> per month</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-green-400 mb-2">4+</div>
+                <p className="text-gray-400">Premium Tools</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-green-400 mb-2">∞</div>
+                <p className="text-gray-400">Unlimited Usage</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-green-400 mb-2">24/7</div>
+                <p className="text-gray-400">Support Access</p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-400 mb-2">7 days</div>
-              <p className="text-gray-400">Free trial</p>
-            </div>
-          </div>
 
-          <div className="text-center">
-            <button className="btn-primary text-lg px-8 py-3">
-              Start Free Trial
-            </button>
-            <p className="text-sm text-gray-500 mt-2">Cancel anytime • No commitment</p>
+            <div className="text-center">
+              <Link href="/dashboard" className="btn-primary text-lg px-8 py-3">
+                Go to Dashboard
+              </Link>
+            </div>
           </div>
-        </div>
+        </Paywall>
 
         {/* Coming Soon */}
         <div>
