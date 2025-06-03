@@ -1,0 +1,19 @@
+John Smith
+Data Analyst
+
+Experience:
+- 3 years experience in data analysis
+- Proficient in SQL, Python, and Tableau
+- Led data-driven projects that increased efficiency by 25%
+- Experience with machine learning algorithms
+
+Education:
+- BS in Statistics from State University
+- Relevant coursework in statistical analysis and programming
+
+Skills:
+- SQL, Python, R
+- Tableau, Power BI
+- Machine Learning
+- Statistical Analysis
+- Data Visualization 

@@ -3,8 +3,10 @@ import {
   MapIcon,
   ClipboardDocumentListIcon,
   LightBulbIcon,
-  StarIcon
+  StarIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline'
+import Link from 'next/link'
 
 export default function ResourcesPage() {
   const resumeTemplates = [
@@ -129,7 +131,6 @@ export default function ResourcesPage() {
           </p>
         </div>
 
-       
 
         {/* Resume Templates */}
         <section className="mb-16">
@@ -194,77 +195,6 @@ export default function ResourcesPage() {
                   <span className="text-sm text-gray-500">{guide.pages} pages</span>
                   <button className="px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors">
                     Download
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Worksheets */}
-        <section className="mb-16">
-          <div className="flex items-center mb-8">
-            <ClipboardDocumentListIcon className="h-8 w-8 text-green-400 mr-3" />
-            <h2 className="text-3xl font-bold">Interactive Worksheets</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {worksheets.map((worksheet, index) => (
-              <div key={index} className="glass rounded-xl p-6 card-hover">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-semibold">{worksheet.title}</h3>
-                  <span className="px-2 py-1 bg-blue-400/20 text-blue-400 text-xs rounded-full">
-                    {worksheet.format}
-                  </span>
-                </div>
-                <p className="text-gray-400 mb-4">{worksheet.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {worksheet.tags.map((tag, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-green-400/20 text-green-400 text-xs rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center text-yellow-400">
-                    <StarIcon className="h-4 w-4 mr-1" />
-                    <span className="text-sm">{worksheet.rating}</span>
-                  </div>
-                  <button className="px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors">
-                    Download
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Case Studies */}
-        <section className="mb-16">
-          <div className="flex items-center mb-8">
-            <LightBulbIcon className="h-8 w-8 text-green-400 mr-3" />
-            <h2 className="text-3xl font-bold">Real-World Case Studies</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {caseStudies.map((study, index) => (
-              <div key={index} className="glass rounded-xl p-6 card-hover">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-semibold">{study.title}</h3>
-                  <span className="px-2 py-1 bg-purple-400/20 text-purple-400 text-xs rounded-full">
-                    {study.industry}
-                  </span>
-                </div>
-                <p className="text-gray-400 mb-4">{study.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {study.tags.map((tag, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-green-400/20 text-green-400 text-xs rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-green-400">{study.impact}</span>
-                  <button className="px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors">
-                    Read Study
                   </button>
                 </div>
               </div>

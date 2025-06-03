@@ -1,7 +1,58 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 import { ArrowLeftIcon, ChartBarIcon, ClockIcon, TagIcon } from '@heroicons/react/24/outline'
 
 export default function ArticlesPage() {
+  const [email, setEmail] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email.trim()) {
+      setMessage('Please enter your email address')
+      setMessageType('error')
+      return
+    }
+
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: email.trim(),
+          source: 'articles_page'
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage(data.message)
+        setMessageType('success')
+        setEmail('') // Clear form on success
+      } else {
+        setMessage(data.error || 'Failed to subscribe')
+        setMessageType('error')
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error)
+      setMessage('Failed to subscribe. Please try again.')
+      setMessageType('error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const articles = [
     {
       id: 1,
@@ -19,42 +70,6 @@ export default function ArticlesPage() {
       category: "Career Tips",
       readTime: "6 min read",
       date: "5 days ago",
-      premium: false
-    },
-    {
-      id: 3,
-      title: "Building Your First Analytics Portfolio Project",
-      excerpt: "Step-by-step guide to creating a portfolio that gets you noticed by hiring managers and recruiters.",
-      category: "Portfolio",
-      readTime: "12 min read",
-      date: "1 week ago",
-      premium: false
-    },
-    {
-      id: 4,
-      title: "Netflix's A/B Testing Framework: What Analysts Can Learn",
-      excerpt: "Deep dive into Netflix's experimentation culture and how they use data to make billion-dollar decisions.",
-      category: "Tech Analytics",
-      readTime: "10 min read",
-      date: "2 weeks ago",
-      premium: false
-    },
-    {
-      id: 5,
-      title: "From Excel to Python: My Analytics Career Transformation",
-      excerpt: "How I transitioned from basic Excel analysis to advanced Python analytics and doubled my salary.",
-      category: "Career Journey",
-      readTime: "7 min read",
-      date: "3 weeks ago",
-      premium: false
-    },
-    {
-      id: 6,
-      title: "What Skills Actually Matter for Your First Analytics Role",
-      excerpt: "Based on 50+ interviews with hiring managers, here's what they're really looking for in entry-level analysts.",
-      category: "Career Tips",
-      readTime: "9 min read",
-      date: "1 month ago",
       premium: false
     }
   ]
@@ -135,14 +150,32 @@ export default function ArticlesPage() {
           <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
             Get weekly insights on analytics solutions from top companies and career tips delivered to your inbox.
           </p>
-          <form className="max-w-md mx-auto flex gap-4">
+          
+          {message && (
+            <div className={`mb-4 p-3 rounded-lg ${
+              messageType === 'success' 
+                ? 'bg-green-400/20 text-green-400 border border-green-400/30' 
+                : 'bg-red-400/20 text-red-400 border border-red-400/30'
+            }`}>
+              {message}
+            </div>
+          )}
+          
+          <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto flex gap-4">
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-400 text-white"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-400 text-white disabled:opacity-50"
             />
-            <button type="submit" className="btn-primary">
-              Subscribe
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Subscribing...' : 'Subscribe'}
             </button>
           </form>
         </div>

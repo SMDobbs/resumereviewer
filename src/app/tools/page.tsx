@@ -21,24 +21,9 @@ export default function ToolsPage() {
         "Instant improvement suggestions",
         "Before/after comparison"
       ],
-      premium: true,
-      available: true
-    },
-    {
-      id: 2,
-      title: "AI Mock Interviewer",
-      description: "Practice analytics interviews with realistic questions and get detailed feedback on your responses.",
-      icon: UserGroupIcon,
-      features: [
-        "Real interview questions from top companies",
-        "Behavioral and technical scenarios",
-        "Voice response analysis",
-        "Improvement recommendations",
-        "Progress tracking"
-      ],
-      premium: true,
-      popular: true,
-      available: true
+      premium: false,
+      available: true,
+      route: "/resume-reviewer"
     },
     {
       id: 3,
@@ -53,7 +38,8 @@ export default function ToolsPage() {
         "Network growth tips"
       ],
       premium: true,
-      available: true
+      available: false,
+      route: "/tools/linkedin-optimizer"
     },
     {
       id: 4,
@@ -68,7 +54,8 @@ export default function ToolsPage() {
         "Personalized learning path"
       ],
       premium: false,
-      available: true
+      available: true,
+      route: "/tools/skill-assessment"
     }
   ]
 
@@ -101,20 +88,7 @@ export default function ToolsPage() {
           </p>
         </div>
 
-        {/* Free Tool Highlight */}
-        <div className="mb-12 p-6 glass rounded-xl bg-gradient-to-r from-green-900/20 to-green-800/20 border border-green-400/20">
-          <div className="flex items-center mb-4">
-            <ChartBarIcon className="h-8 w-8 text-green-400 mr-3" />
-            <div>
-              <h3 className="text-xl font-bold text-green-400">Start Free</h3>
-              <p className="text-gray-400">Take our skill assessment to identify your strengths</p>
-            </div>
-          </div>
-          <Link href="/tools/skill-assessment" className="btn-primary inline-flex items-center">
-            Take Free Assessment
-            <ArrowLeftIcon className="ml-2 h-4 w-4 rotate-180" />
-          </Link>
-        </div>
+        
 
         {/* Tools Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
@@ -174,13 +148,17 @@ export default function ToolsPage() {
                     >
                       Upgrade to Access
                     </Link>
-                  ) : (
+                  ) : tool.available ? (
                     <Link 
-                      href={tool.premium ? `/tools/${tool.id}` : '/tools/skill-assessment'}
+                      href={tool.route}
                       className={tool.popular ? "btn-primary w-full text-center" : "w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center"}
                     >
-                      {tool.premium ? "Launch Tool" : "Start Free"}
+                      {tool.premium ? "Launch Tool" : "Launch Tool"}
                     </Link>
+                  ) : (
+                    <div className="w-full px-4 py-2 bg-gray-800 text-gray-500 rounded-lg text-center cursor-not-allowed">
+                      Coming Soon
+                    </div>
                   )}
                 </div>
               </div>
@@ -205,40 +183,7 @@ export default function ToolsPage() {
           })}
         </div>
 
-        {/* Premium Bundle Section */}
-        <Paywall
-          title="Complete Analytics Toolkit"
-          description="Access all premium tools and advanced features to accelerate your analytics career."
-          feature="All premium tools, coaching, and exclusive content"
-        >
-          <div className="glass rounded-xl p-8 bg-gradient-to-br from-green-900/20 to-green-800/20 mb-16">
-            <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-2">Premium Access Unlocked</h3>
-              <p className="text-xl text-gray-400">You have access to all analytics tools and features</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-green-400 mb-2">4+</div>
-                <p className="text-gray-400">Premium Tools</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-green-400 mb-2">∞</div>
-                <p className="text-gray-400">Unlimited Usage</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-green-400 mb-2">24/7</div>
-                <p className="text-gray-400">Support Access</p>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <Link href="/dashboard" className="btn-primary text-lg px-8 py-3">
-                Go to Dashboard
-              </Link>
-            </div>
-          </div>
-        </Paywall>
+        
 
         {/* Coming Soon */}
         <div>

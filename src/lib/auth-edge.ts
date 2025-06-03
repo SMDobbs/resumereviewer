@@ -17,7 +17,19 @@ export async function verifySession(session: string): Promise<SessionPayload | n
     const { payload } = await jwtVerify(session, secret, {
       algorithms: ['HS256']
     })
-    return payload as SessionPayload
+    
+    // Validate that required fields exist
+    const sessionPayload = payload as SessionPayload
+    if (!sessionPayload.userId || !sessionPayload.email) {
+      return null
+    }
+    
+    // Check if token is expired
+    if (sessionPayload.expiresAt && new Date(sessionPayload.expiresAt) < new Date()) {
+      return null
+    }
+    
+    return sessionPayload
   } catch {
     return null
   }

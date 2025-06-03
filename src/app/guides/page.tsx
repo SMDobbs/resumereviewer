@@ -160,36 +160,6 @@ export default function GuidesPage() {
             </div>
           ))}
         </div>
-
-        {/* Bundle Offer */}
-        <div className="mt-16 glass rounded-xl p-8 bg-gradient-to-br from-green-900/20 to-green-800/20">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold mb-2">Complete Guide Bundle</h3>
-            <p className="text-xl text-gray-400">Get all premium guides and save 40%</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-400 mb-2">6</div>
-              <p className="text-gray-400">Premium Guides</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-400 mb-2">500+</div>
-              <p className="text-gray-400">Pages of Content</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-400 mb-2">$127</div>
-              <p className="text-gray-400"><span className="line-through text-gray-500">$212</span> Total Value</p>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <button className="btn-primary text-lg px-8 py-3">
-              Get Complete Bundle
-            </button>
-            <p className="text-sm text-gray-500 mt-2">Instant download • Lifetime access</p>
-          </div>
-        </div>
       </div>
     </div>
   )
