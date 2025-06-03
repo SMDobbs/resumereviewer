@@ -13,67 +13,37 @@ export default function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="glass rounded-xl p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center mr-4">
-                <span className="text-green-400 font-bold">SA</span>
+        <div className="max-w-5xl mx-auto">
+          <div className="glass rounded-xl p-8 md:p-16 text-center relative overflow-hidden">
+            {/* Background Quote Marks */}
+            <div className="absolute top-8 left-8 text-8xl text-green-400/10 font-serif leading-none">"</div>
+            <div className="absolute bottom-8 right-8 text-8xl text-green-400/10 font-serif leading-none rotate-180">"</div>
+            
+            {/* Main Content */}
+            <div className="relative z-10">
+              {/* Quote */}
+              <blockquote className="text-xl md:text-2xl text-gray-200 mb-10 italic leading-relaxed max-w-3xl mx-auto">
+                Spencer's coaching was a game-changer for my career. He has this amazing ability to break down complex concepts and show you exactly how to apply them in the real world. Working with him was definitely worth the investment!
+              </blockquote>
+              
+              {/* Rating */}
+              <div className="flex justify-center mb-8">
+                {[...Array(5)].map((_, i) => (
+                  <StarIcon key={i} className="h-7 w-7 text-yellow-400 fill-current mx-0.5" />
+                ))}
               </div>
-              <div>
-                <h4 className="font-semibold">Sarah A.</h4>
-                <p className="text-sm text-gray-400">Senior Data Analyst</p>
+              
+              {/* Author */}
+              <div className="flex items-center justify-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-400/30 to-green-500/30 rounded-full flex items-center justify-center mr-6 border-2 border-green-400/20">
+                  <span className="text-green-400 font-bold text-xl">HB</span>
+                </div>
+                <div className="text-left">
+                  <div className="font-bold text-xl text-white">Hannah Beck</div>
+                  <div className="text-gray-300 text-lg">Manager, Business Systems Analyst</div>
+                  <div className="text-green-400 text-sm font-medium">Walmart</div>
+                </div>
               </div>
-            </div>
-            <p className="text-gray-300 mb-4">
-              "The salary negotiation toolkit helped me secure a $25k raise in my annual review. 
-              The strategies are practical and actually work in real-world situations."
-            </p>
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <StarIcon key={i} className="h-4 w-4 fill-current" />
-              ))}
-            </div>
-          </div>
-
-          <div className="glass rounded-xl p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center mr-4">
-                <span className="text-green-400 font-bold">MJ</span>
-              </div>
-              <div>
-                <h4 className="font-semibold">Mike J.</h4>
-                <p className="text-sm text-gray-400">Analytics Manager</p>
-              </div>
-            </div>
-            <p className="text-gray-300 mb-4">
-              "The executive communication course transformed how I present insights. 
-              I went from creating reports to driving business strategy."
-            </p>
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <StarIcon key={i} className="h-4 w-4 fill-current" />
-              ))}
-            </div>
-          </div>
-
-          <div className="glass rounded-xl p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center mr-4">
-                <span className="text-green-400 font-bold">LK</span>
-              </div>
-              <div>
-                <h4 className="font-semibold">Lisa K.</h4>
-                <p className="text-sm text-gray-400">Business Analyst</p>
-              </div>
-            </div>
-            <p className="text-gray-300 mb-4">
-              "As a career changer, the industry insights helped me understand where analytics 
-              fits in different sectors. Landed my dream job in retail analytics!"
-            </p>
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <StarIcon key={i} className="h-4 w-4 fill-current" />
-              ))}
             </div>
           </div>
         </div>

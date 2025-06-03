@@ -8,8 +8,8 @@ export default function CoachingPage() {
     {
       id: 1,
       title: "Mock Interview Session",
-      duration: "60 minutes",
-      price: "$97",
+      duration: "45 minutes",
+      price: "$74.99",
       description: "Practice with an experienced analyst who knows what hiring managers look for",
       includes: [
         "Behavioral interview practice",
@@ -18,13 +18,14 @@ export default function CoachingPage() {
         "Personalized improvement plan",
         "Recording of session"
       ],
-      popular: false
+      popular: false,
+      paymentLink: "https://calendly.com/databydobbs-support/mock-interview-session"
     },
     {
       id: 2,
       title: "Career Strategy Session",
-      duration: "90 minutes",
-      price: "$147",
+      duration: "60 minutes",
+      price: "$99.99",
       description: "Get a personalized roadmap for breaking into analytics based on your background",
       includes: [
         "Skills gap analysis",
@@ -33,13 +34,14 @@ export default function CoachingPage() {
         "Networking tips",
         "30-day action plan"
       ],
-      popular: true
+      popular: true,
+      paymentLink: "https://calendly.com/databydobbs-support/30min"
     },
     {
       id: 3,
       title: "Resume & LinkedIn Review",
-      duration: "45 minutes",
-      price: "$77",
+      duration: "30 minutes",
+      price: "$49.99",
       description: "Get your resume and LinkedIn profile optimized for analytics roles",
       includes: [
         "Line-by-line resume review",
@@ -48,27 +50,16 @@ export default function CoachingPage() {
         "Before/after comparison",
         "ATS optimization tips"
       ],
-      popular: false
+      popular: false,
+      paymentLink: "https://calendly.com/databydobbs-support/resume-linkedin-review"
     }
   ]
 
   const testimonials = [
     {
-      name: "Sarah Chen",
-      role: "Data Analyst at Microsoft",
-      content: "The mock interview session gave me the confidence I needed. I landed my dream role within 3 weeks!",
-      rating: 5
-    },
-    {
-      name: "Marcus Johnson",
-      role: "Analytics Consultant",
-      content: "The career strategy session was a game-changer. I finally had a clear path forward.",
-      rating: 5
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "Business Analyst at Target",
-      content: "My resume went from zero responses to 5 interviews in 2 weeks. Worth every penny!",
+      name: "Hannah Beck",
+      role: "Manager, Business Systems Analyst at Walmart",
+      content: "Spencer's coaching was a game-changer for my career. He has this amazing ability to break down complex concepts and show you exactly how to apply them in the real world. Working with him was definitely worth the investment!",
       rating: 5
     }
   ]
@@ -125,9 +116,14 @@ export default function CoachingPage() {
               </ul>
             </div>
 
-            <button className={option.popular ? "btn-primary w-full" : "w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors"}>
+            <a 
+              href={option.paymentLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={option.popular ? "btn-primary w-full inline-block text-center" : "w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors inline-block text-center"}
+            >
               Book Session
-            </button>
+            </a>
           </div>
         ))}
       </div>
@@ -167,50 +163,42 @@ export default function CoachingPage() {
         </div>
       </div>
 
-      {/* Testimonials */}
+      {/* Testimonial */}
       <div className="mb-16">
-        <h2 className="text-2xl font-bold mb-8 text-center">Success Stories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <div key={index} className="glass rounded-xl p-6">
-              <div className="flex mb-3">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <StarIcon key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
+        <h2 className="text-2xl font-bold mb-8 text-center">What Clients Are Saying</h2>
+        <div className="max-w-4xl mx-auto">
+          <div className="glass rounded-xl p-8 md:p-12 text-center relative">
+            {/* Quote Icon */}
+            <div className="absolute top-6 left-6 text-6xl text-green-400/20 font-serif">"</div>
+            
+            {/* Main Quote */}
+            <blockquote className="text-lg md:text-xl text-gray-300 mb-8 italic leading-relaxed">
+              Spencer's coaching was a game-changer for my career. He has this amazing ability to break down complex concepts and show you exactly how to apply them in the real world. Working with him was definitely worth the investment!
+            </blockquote>
+            
+            {/* Rating */}
+            <div className="flex justify-center mb-6">
+              {[...Array(5)].map((_, i) => (
+                <StarIcon key={i} className="h-6 w-6 text-yellow-400 fill-current" />
+              ))}
+            </div>
+            
+            {/* Author Info */}
+            <div className="flex items-center justify-center">
+              <div className="w-16 h-16 bg-green-400/20 rounded-full flex items-center justify-center mr-4">
+                <span className="text-green-400 font-bold text-lg">HB</span>
               </div>
-              <p className="text-gray-300 mb-4 italic">"{testimonial.content}"</p>
-              <div>
-                <p className="font-medium">{testimonial.name}</p>
-                <p className="text-sm text-gray-500">{testimonial.role}</p>
+              <div className="text-left">
+                <div className="font-semibold text-lg">Hannah Beck</div>
+                <div className="text-gray-400">Manager, Business Systems Analyst</div>
+                <div className="text-gray-500 text-sm">Walmart</div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
-      {/* Package Deal */}
-      <div className="glass rounded-xl p-8 bg-gradient-to-br from-green-900/20 to-green-800/20 text-center">
-        <h3 className="text-2xl font-bold mb-2">Premium Coaching Access</h3>
-        <p className="text-gray-400 mb-6">All coaching sessions included with your premium membership</p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-          <div>
-            <span className="text-4xl font-bold text-green-400">Unlimited</span>
-          </div>
-          <div className="text-left">
-            <p className="text-sm text-gray-400">✓ Mock Interview Sessions</p>
-            <p className="text-sm text-gray-400">✓ Career Strategy Sessions</p>
-            <p className="text-sm text-gray-400">✓ Resume & LinkedIn Reviews</p>
-            <p className="text-sm text-gray-400">✓ Follow-up Support</p>
-          </div>
-        </div>
-
-        <button className="btn-primary text-lg px-8 py-3">
-          <CalendarIcon className="h-5 w-5 inline mr-2" />
-          Schedule Your First Session
-        </button>
-        <p className="text-sm text-gray-500 mt-2">Premium members get priority booking</p>
-      </div>
+      
     </PagePaywall>
   )
 } 
