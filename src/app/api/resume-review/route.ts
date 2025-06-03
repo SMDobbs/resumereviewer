@@ -2,23 +2,44 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import mammoth from 'mammoth'
 
+// Dynamic import for PDF parser since it's a CommonJS module
+async function createPDFParser() {
+  const PDFParser = (await import('pdf2json')).default
+  return new PDFParser()
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
 
+interface PDFTextRun {
+  T: string
+}
+
+interface PDFTextItem {
+  R: PDFTextRun[]
+}
+
+interface PDFPage {
+  Texts: PDFTextItem[]
+}
+
+interface PDFData {
+  Pages: PDFPage[]
+}
+
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const PDFParser = require('pdf2json')
-      const pdfParser = new PDFParser()
+      const pdfParser = await createPDFParser()
 
       // Set up event handlers
-      pdfParser.on('pdfParser_dataError', (errData: any) => {
+      pdfParser.on('pdfParser_dataError', (errData: Record<"parserError", Error>) => {
         console.error('PDF Parser Error:', errData)
         reject(new Error('Failed to parse PDF file. The file might be corrupted, password-protected, or in an unsupported format.'))
       })
 
-      pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
+      pdfParser.on('pdfParser_dataReady', (pdfData: PDFData) => {
         try {
           if (!pdfData || !pdfData.Pages || !Array.isArray(pdfData.Pages)) {
             reject(new Error('Invalid PDF structure or empty PDF.'))
@@ -28,11 +49,11 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
           let text = ''
           
           // Extract text from all pages
-          pdfData.Pages.forEach((page: any) => {
+          pdfData.Pages.forEach((page: PDFPage) => {
             if (page.Texts && Array.isArray(page.Texts)) {
-              page.Texts.forEach((textItem: any) => {
+              page.Texts.forEach((textItem: PDFTextItem) => {
                 if (textItem.R && Array.isArray(textItem.R)) {
-                  textItem.R.forEach((textRun: any) => {
+                  textItem.R.forEach((textRun: PDFTextRun) => {
                     if (textRun.T) {
                       // Decode URI-encoded text
                       const decodedText = decodeURIComponent(textRun.T)
@@ -284,16 +305,18 @@ Analyze this resume against the job criteria. Respond with ONLY the JSON structu
         fileName: file.name
       })
 
-    } catch (openaiError: any) {
+    } catch (openaiError: unknown) {
       console.error('OpenAI API error:', openaiError)
 
-      if (openaiError.status === 429) {
+      const error = openaiError as { status?: number }
+
+      if (error.status === 429) {
         return NextResponse.json({ 
           error: 'OpenAI API quota exceeded. Please check your billing or try again later.' 
         }, { status: 429 })
       }
 
-      if (openaiError.status === 401) {
+      if (error.status === 401) {
         return NextResponse.json({ 
           error: 'Invalid OpenAI API key. Please check your API key configuration.' 
         }, { status: 401 })

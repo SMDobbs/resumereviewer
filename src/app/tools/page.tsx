@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeftIcon, SparklesIcon, UserGroupIcon, DocumentTextIcon, ChartBarIcon, LockClosedIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, DocumentTextIcon, ChartBarIcon, LockClosedIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
 import Paywall from '@/components/Paywall'
 
@@ -95,12 +95,7 @@ export default function ToolsPage() {
           {tools.map((tool) => {
             const Icon = tool.icon
             const toolContent = (
-              <div key={tool.id} className={`glass rounded-xl p-8 relative ${tool.popular ? 'ring-2 ring-green-400' : ''}`}>
-                {tool.popular && (
-                  <div className="absolute -top-3 right-6 bg-green-400 text-gray-900 px-3 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </div>
-                )}
+              <div key={tool.id} className="glass rounded-xl p-8 relative">
                 
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center">
@@ -151,7 +146,7 @@ export default function ToolsPage() {
                   ) : tool.available ? (
                     <Link 
                       href={tool.route}
-                      className={tool.popular ? "btn-primary w-full text-center" : "w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center"}
+                      className="w-full px-4 py-2 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center"
                     >
                       {tool.premium ? "Launch Tool" : "Launch Tool"}
                     </Link>

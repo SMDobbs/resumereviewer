@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { 
   DocumentTextIcon, 
   CloudArrowUpIcon,
-  StarIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   LightBulbIcon,
@@ -136,12 +135,6 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
     if (score >= 8) return 'text-emerald-400'
     if (score >= 6) return 'text-amber-400'
     return 'text-red-400'
-  }
-
-  const getScoreBackground = (score: number) => {
-    if (score >= 8) return 'bg-emerald-500/20 border border-emerald-500/30'
-    if (score >= 6) return 'bg-amber-500/20 border border-amber-500/30'
-    return 'bg-red-500/20 border border-red-500/30'
   }
 
   const getProgressWidth = (score: number) => {

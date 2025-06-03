@@ -1,12 +1,8 @@
 import { 
   DocumentTextIcon, 
   MapIcon,
-  ClipboardDocumentListIcon,
-  LightBulbIcon,
-  StarIcon,
-  SparklesIcon
+  StarIcon
 } from '@heroicons/react/24/outline'
-import Link from 'next/link'
 
 export default function ResourcesPage() {
   const resumeTemplates = [
@@ -60,60 +56,6 @@ export default function ResourcesPage() {
       pages: 35,
       rating: 4.7,
       tags: ["Remote Work", "Communication", "Productivity"]
-    }
-  ]
-
-  const worksheets = [
-    {
-      title: "Skills Gap Analysis Worksheet",
-      description: "Identify your skill gaps and create a personalized development plan.",
-      category: "Worksheets",
-      format: "PDF",
-      rating: 4.8,
-      tags: ["Self-Assessment", "Planning", "Development"]
-    },
-    {
-      title: "Project Impact Calculator",
-      description: "Calculate and articulate the business impact of your analytics projects.",
-      category: "Worksheets", 
-      format: "Excel",
-      rating: 4.9,
-      tags: ["Impact Metrics", "ROI", "Business Value"]
-    },
-    {
-      title: "Interview Preparation Checklist",
-      description: "Comprehensive checklist for technical and behavioral interview preparation.",
-      category: "Worksheets",
-      format: "PDF",
-      rating: 4.7,
-      tags: ["Interview Prep", "Checklist", "Preparation"]
-    }
-  ]
-
-  const caseStudies = [
-    {
-      title: "Real Estate Risk Analytics",
-      description: "How risk segmentation models saved $2M+ in operational costs",
-      industry: "Real Estate",
-      impact: "$2M+ Savings",
-      rating: 4.9,
-      tags: ["Risk Modeling", "Machine Learning", "Cost Reduction"]
-    },
-    {
-      title: "IoT Predictive Maintenance",
-      description: "Predicting HVAC failures using smart thermostat data",
-      industry: "PropTech",
-      impact: "40% Cost Reduction",
-      rating: 4.8,
-      tags: ["IoT Analytics", "Predictive Models", "Maintenance"]
-    },
-    {
-      title: "Security Analytics Platform",
-      description: "Trespasser detection using smart home sensor networks",
-      industry: "Security",
-      impact: "85% Accuracy",
-      rating: 4.7,
-      tags: ["Security", "Sensor Data", "Real-time Analytics"]
     }
   ]
 

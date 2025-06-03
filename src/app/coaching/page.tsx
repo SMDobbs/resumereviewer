@@ -1,6 +1,6 @@
 'use client'
 
-import { UserGroupIcon, ClockIcon, CalendarIcon, CheckCircleIcon, StarIcon } from '@heroicons/react/24/outline'
+import { UserGroupIcon, ClockIcon, CheckCircleIcon, StarIcon } from '@heroicons/react/24/outline'
 import { PagePaywall } from '@/components/Paywall'
 
 export default function CoachingPage() {
@@ -52,15 +52,6 @@ export default function CoachingPage() {
       ],
       popular: false,
       paymentLink: "https://calendly.com/databydobbs-support/resume-linkedin-review"
-    }
-  ]
-
-  const testimonials = [
-    {
-      name: "Hannah Beck",
-      role: "Manager, Business Systems Analyst at Walmart",
-      content: "Spencer's coaching was a game-changer for my career. He has this amazing ability to break down complex concepts and show you exactly how to apply them in the real world. Working with him was definitely worth the investment!",
-      rating: 5
     }
   ]
 
@@ -129,36 +120,72 @@ export default function CoachingPage() {
       </div>
 
       {/* How It Works */}
-      <div className="glass rounded-xl p-8 mb-16">
-        <h2 className="text-2xl font-bold mb-6 text-center">How Coaching Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-green-400 font-bold">1</span>
+      <div className="my-24">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold mb-4">How Coaching Works</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            Get started in just four simple steps
+          </p>
+        </div>
+        
+        <div className="max-w-4xl mx-auto">
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-green-400 via-green-400/50 to-transparent"></div>
+            
+            <div className="space-y-12">
+              {/* Step 1 */}
+              <div className="relative flex items-start gap-8">
+                <div className="flex-shrink-0 w-16 h-16 bg-green-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-lg relative z-10">
+                  1
+                </div>
+                <div className="flex-1 pt-2">
+                  <h3 className="text-xl font-semibold mb-3 text-white">Book & Pay for Your Session</h3>
+                  <p className="text-gray-400 text-base leading-relaxed">
+                    Choose your coaching type and complete payment through our secure Calendly booking system. Payment is required before scheduling to secure your slot and get instant confirmation.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="relative flex items-start gap-8">
+                <div className="flex-shrink-0 w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-lg relative z-10">
+                  2
+                </div>
+                <div className="flex-1 pt-2">
+                  <h3 className="text-xl font-semibold mb-3 text-white">Prepare & Plan</h3>
+                  <p className="text-gray-400 text-base leading-relaxed">
+                    Receive a pre-session questionnaire and preparation materials tailored to your goals. This helps us maximize your coaching time together.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="relative flex items-start gap-8">
+                <div className="flex-shrink-0 w-16 h-16 bg-purple-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-lg relative z-10">
+                  3
+                </div>
+                <div className="flex-1 pt-2">
+                  <h3 className="text-xl font-semibold mb-3 text-white">Your Coaching Session</h3>
+                  <p className="text-gray-400 text-base leading-relaxed">
+                    Connect with your coach via video call for personalized guidance. Get real-time feedback and practical strategies you can implement immediately.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div className="relative flex items-start gap-8">
+                <div className="flex-shrink-0 w-16 h-16 bg-orange-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-lg relative z-10">
+                  4
+                </div>
+                <div className="flex-1 pt-2">
+                  <h3 className="text-xl font-semibold mb-3 text-white">Follow-Up & Growth</h3>
+                  <p className="text-gray-400 text-base leading-relaxed">
+                    Receive detailed session notes, action items, and a personalized roadmap for your next steps. Continue your growth with confidence.
+                  </p>
+                </div>
+              </div>
             </div>
-            <h3 className="font-medium mb-1">Book Your Session</h3>
-            <p className="text-sm text-gray-400">Choose your coaching type and preferred time</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-green-400 font-bold">2</span>
-            </div>
-            <h3 className="font-medium mb-1">Prep Materials</h3>
-            <p className="text-sm text-gray-400">Receive pre-session questionnaire and resources</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-green-400 font-bold">3</span>
-            </div>
-            <h3 className="font-medium mb-1">Live Session</h3>
-            <p className="text-sm text-gray-400">Get personalized coaching via video call</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-green-400 font-bold">4</span>
-            </div>
-            <h3 className="font-medium mb-1">Follow-up</h3>
-            <p className="text-sm text-gray-400">Receive session notes and action plan</p>
           </div>
         </div>
       </div>
