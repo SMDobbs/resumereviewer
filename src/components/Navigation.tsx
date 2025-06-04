@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
@@ -10,12 +10,41 @@ import { useUser } from '@/lib/context/UserContext'
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [isScrolled, setIsScrolled] = useState(false)
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pathname = usePathname()
   const router = useRouter()
   const { user, loading, logout } = useUser()
 
-  const publicNavItems = [
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY > 50
+      setIsScrolled(scrolled)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Smooth scroll function for landing page sections
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  // Check if we're on the landing page and user is not signed in
+  const isLandingPage = pathname === '/' && !user
+
+  const publicNavItems = isLandingPage ? [
+    { scrollTo: 'home', label: 'Home' },
+    { scrollTo: 'about', label: 'About' },
+    { scrollTo: 'features', label: 'Features' },
+    { scrollTo: 'pricing', label: 'Pricing' },
+    { scrollTo: 'team', label: 'Team' },
+  ] : [
     { href: '/', label: 'Home' },
     { 
       label: 'Learn',
@@ -92,8 +121,21 @@ const Navigation = () => {
     return user.firstName.charAt(0).toUpperCase() + (user.lastName?.charAt(0).toUpperCase() || '')
   }
 
+  // Dynamic navbar classes and styles based on scroll position
+  const navbarStyle = isScrolled 
+    ? {} 
+    : { 
+        background: 'transparent',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid transparent'
+      }
+
+  const navbarClasses = isScrolled 
+    ? "fixed top-0 left-0 right-0 z-50 glass-nav border-b border-gray-800/50 transition-all duration-300"
+    : "fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-gray-800/50">
+    <nav className={navbarClasses} style={navbarStyle}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -108,9 +150,9 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <div key={item.label || item.href} className="relative">
-                {item.isDropdown ? (
+            {navItems.map((item, index) => (
+              <div key={item.label || index} className="relative">
+                {'isDropdown' in item && item.isDropdown ? (
                   <div 
                     className="relative"
                     onMouseEnter={() => handleMouseEnter(item.label)}
@@ -124,10 +166,10 @@ const Navigation = () => {
                     </button>
                     
                     {/* Dropdown Menu */}
-                    {activeDropdown === item.label && (
+                    {activeDropdown === item.label && 'dropdownItems' in item && (
                       <div className="absolute top-full left-0 w-64 glass rounded-xl border border-gray-700/50 shadow-xl">
                         <div className="p-2">
-                          {item.dropdownItems?.map((dropdownItem) => {
+                          {item.dropdownItems?.map((dropdownItem: any) => {
                             const Icon = dropdownItem.icon
                             return (
                               <Link
@@ -152,6 +194,13 @@ const Navigation = () => {
                       </div>
                     )}
                   </div>
+                ) : 'scrollTo' in item ? (
+                  <button
+                    onClick={() => scrollToSection(item.scrollTo)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-300 hover:text-green-400 hover:bg-green-400/5"
+                  >
+                    {item.label}
+                  </button>
                 ) : (
                   <Link
                     href={item.href!}
@@ -295,15 +344,15 @@ const Navigation = () => {
         {isOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-4 pb-6 space-y-2 border-t border-gray-800/50 mt-2">
-              {navItems.map((item) => (
-                <div key={item.label || item.href}>
-                  {item.isDropdown ? (
+              {navItems.map((item, index) => (
+                <div key={item.label || index}>
+                  {'isDropdown' in item && item.isDropdown ? (
                     <div>
                       <div className="px-3 py-2 text-sm font-medium text-gray-400 uppercase tracking-wider">
                         {item.label}
                       </div>
                       <div className="ml-4 space-y-1">
-                        {item.dropdownItems?.map((dropdownItem) => {
+                        {'dropdownItems' in item && item.dropdownItems?.map((dropdownItem: any) => {
                           const Icon = dropdownItem.icon
                           return (
                             <Link
@@ -319,6 +368,16 @@ const Navigation = () => {
                         })}
                       </div>
                     </div>
+                  ) : 'scrollTo' in item ? (
+                    <button
+                      onClick={() => {
+                        scrollToSection(item.scrollTo)
+                        setIsOpen(false)
+                      }}
+                      className="block w-full text-left px-3 py-3 rounded-lg text-base font-medium transition-colors text-gray-300 hover:text-green-400 hover:bg-green-400/5"
+                    >
+                      {item.label}
+                    </button>
                   ) : (
                     <Link
                       href={item.href!}

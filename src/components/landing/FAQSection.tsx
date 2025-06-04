@@ -8,8 +8,8 @@ export default function FAQSection() {
 
   const faqs = [
     {
-      question: "What's included in the monthly subscription?",
-      answer: "Your subscription includes unlimited access to all career articles, curated learning roadmaps, downloadable resume templates, career frameworks, and industry insights. You get strategic guidance for breaking into analytics, advancing your career, and navigating different industry sectors based on real Fortune 100 experience."
+      question: "What's included in the Full Access Pass?",
+      answer: "Your one-time purchase includes lifetime access to all career articles, curated learning roadmaps, downloadable resume templates, career frameworks, and industry insights. You get strategic guidance for breaking into analytics, advancing your career, and navigating different industry sectors based on real Fortune 100 experience."
     },
     {
       question: "Do you provide actual courses or just recommendations?",
@@ -21,7 +21,11 @@ export default function FAQSection() {
     },
     {
       question: "Can I get personalized help with my specific situation?",
-      answer: "Yes! While the subscription gives you access to all strategic articles and resources, you can book optional 1:1 career strategy sessions or mock interviews for $99 each. These sessions provide personalized guidance, resume optimization, and career roadmap development tailored to your specific goals and background."
+      answer: "Yes! While the Full Access Pass gives you lifetime access to all strategic articles and resources, you can book optional 1:1 sessions: Resume & LinkedIn Review ($49.99), Mock Interview Session ($74.99), or Career Strategy Session ($99.99). These sessions provide personalized guidance, resume optimization, and career roadmap development tailored to your specific goals and background."
+    },
+    {
+      question: "Is this really a one-time payment with no recurring charges?",
+      answer: "Absolutely! The $29.99 Full Access Pass is a one-time payment that gives you lifetime access to all content, resources, and tools. There are no monthly fees, no renewal charges, and no hidden costs. The only additional charges are the optional 1:1 coaching sessions if you choose to book them."
     }
   ]
 

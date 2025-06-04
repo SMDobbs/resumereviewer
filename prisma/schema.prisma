@@ -37,6 +37,7 @@ model User {
   // Progress tracking
   courseProgress     CourseProgress[]
   toolUsage         ToolUsage[]
+  sqlAssessments    SQLAssessmentResult[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -176,6 +177,30 @@ model Newsletter {
   updatedAt DateTime @updatedAt
   
   @@map("newsletter_subscriptions")
+}
+
+model SQLAssessmentResult {
+  id              String   @id @default(cuid())
+  userId          String?  // Optional for anonymous users
+  
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Results
+  score           Int      // Overall percentage score
+  timeElapsed     Int      // Time taken in seconds
+  skillLevel      String   // "Beginner", "Intermediate", or "Advanced"
+  
+  // Detailed data (stored as JSON)
+  categoryBreakdown Json   // Category performance data
+  answers          Json    // User's answers
+  aiFeedback       String? // AI-generated feedback
+  
+  // Metadata
+  questionsVersion String  @default("v1") // Track question set version
+  
+  createdAt       DateTime @default(now())
+  
+  @@map("sql_assessment_results")
 }
 
 // Enums

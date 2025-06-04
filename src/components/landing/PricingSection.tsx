@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CheckIcon, UserGroupIcon, BriefcaseIcon } from '@heroicons/react/24/outline'
+import { CheckIcon, UserGroupIcon, BriefcaseIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 
 export default function PricingSection() {
   return (
@@ -25,12 +25,12 @@ export default function PricingSection() {
             </div>
             
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-2">Monthly Subscription</h3>
+              <h3 className="text-3xl font-bold mb-2">Full Access Pass</h3>
               <div className="text-5xl font-bold mb-2">
                 <span className="gradient-text">$29.99</span>
-                <span className="text-lg text-gray-400">/month</span>
+                <span className="text-lg text-gray-400"> one-time</span>
               </div>
-              <p className="text-gray-400">Unlimited access to all career guidance, resources, and curated learning paths</p>
+              <p className="text-gray-400">Lifetime access to all career guidance, resources, and curated learning paths</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -124,10 +124,10 @@ export default function PricingSection() {
             </div>
 
             <Link href="/dashboard" className="btn-primary w-full text-lg py-4 block text-center">
-              Start Your 30-Day Free Trial
+              Get Full Access Now
             </Link>
             <p className="text-center text-sm text-gray-500 mt-3">
-              30-day free trial • Cancel anytime • No credit card required
+              One-time payment • Lifetime access • No recurring charges
             </p>
           </div>
         </div>
@@ -142,21 +142,21 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           <div className="glass rounded-xl p-6 text-center border border-gray-700">
             <div className="w-16 h-16 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <UserGroupIcon className="h-8 w-8 text-green-400" />
             </div>
             <h4 className="text-xl font-bold mb-2">Mock Interview Session</h4>
             <div className="text-3xl font-bold mb-4">
-              <span className="gradient-text">$99</span>
-              <span className="text-sm text-gray-400 block">per session</span>
+              <span className="gradient-text">$74.99</span>
+              <span className="text-sm text-gray-400 block">45 minutes</span>
             </div>
 
             <ul className="space-y-3 mb-6 text-left">
               <li className="flex items-center">
                 <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
-                <span className="text-sm">1-hour realistic interview simulation</span>
+                <span className="text-sm">Realistic interview simulation</span>
               </li>
               <li className="flex items-center">
                 <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
@@ -168,7 +168,7 @@ export default function PricingSection() {
               </li>
               <li className="flex items-center">
                 <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
-                <span className="text-sm">Follow-up action plan</span>
+                <span className="text-sm">Recording of session</span>
               </li>
             </ul>
 
@@ -183,18 +183,18 @@ export default function PricingSection() {
             </div>
             <h4 className="text-xl font-bold mb-2">Career Strategy Session</h4>
             <div className="text-3xl font-bold mb-4">
-              <span className="gradient-text">$99</span>
-              <span className="text-sm text-gray-400 block">per session</span>
+              <span className="gradient-text">$99.99</span>
+              <span className="text-sm text-gray-400 block">60 minutes</span>
             </div>
 
             <ul className="space-y-3 mb-6 text-left">
               <li className="flex items-center">
                 <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
-                <span className="text-sm">1-hour personalized strategy session</span>
+                <span className="text-sm">Personalized strategy session</span>
               </li>
               <li className="flex items-center">
                 <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
-                <span className="text-sm">Resume & LinkedIn optimization</span>
+                <span className="text-sm">Skills gap analysis</span>
               </li>
               <li className="flex items-center">
                 <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
@@ -202,7 +202,7 @@ export default function PricingSection() {
               </li>
               <li className="flex items-center">
                 <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
-                <span className="text-sm">Personalized action plan</span>
+                <span className="text-sm">30-day action plan</span>
               </li>
             </ul>
 
@@ -210,12 +210,46 @@ export default function PricingSection() {
               Book Strategy Session
             </button>
           </div>
+
+          <div className="glass rounded-xl p-6 text-center border border-gray-700">
+            <div className="w-16 h-16 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <DocumentTextIcon className="h-8 w-8 text-green-400" />
+            </div>
+            <h4 className="text-xl font-bold mb-2">Resume & LinkedIn Review</h4>
+            <div className="text-3xl font-bold mb-4">
+              <span className="gradient-text">$49.99</span>
+              <span className="text-sm text-gray-400 block">30 minutes</span>
+            </div>
+
+            <ul className="space-y-3 mb-6 text-left">
+              <li className="flex items-center">
+                <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-sm">Line-by-line resume review</span>
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-sm">LinkedIn optimization</span>
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-sm">Keyword recommendations</span>
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-sm">ATS optimization tips</span>
+              </li>
+            </ul>
+
+            <button className="w-full py-3 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors">
+              Book Resume Review
+            </button>
+          </div>
         </div>
 
         <div className="text-center mt-12">
           <p className="text-gray-400 text-sm">
             All 1:1 services include detailed follow-up materials and email support. 
-            <span className="text-green-400">Subscription required</span> to book sessions.
+            <span className="text-green-400">Full Access Pass required</span> to book sessions.
           </p>
         </div>
       </div>

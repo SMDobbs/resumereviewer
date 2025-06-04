@@ -63,10 +63,17 @@ a {
 }
 
 .glass-nav {
-  background: rgba(10, 10, 10, 0.95);
+  background: rgba(10, 10, 10, 0.4);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(31, 41, 55, 0.3);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.glass-nav-transparent {
+  background: transparent;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .btn-primary {
@@ -111,4 +118,28 @@ a {
   transform: translateY(-5px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   border-color: var(--primary);
+}
+
+/* Section Separators */
+.section-separator {
+  position: relative;
+}
+
+.section-separator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.3;
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
+  margin: 0 auto;
+  width: 80%;
 }

@@ -3,9 +3,9 @@ import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-green-950">
+    <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-green-950 min-h-screen flex items-center">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-from)_0%,_transparent_50%)] from-green-400/20"></div>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
             Land Your First{' '}
