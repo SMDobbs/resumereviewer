@@ -18,7 +18,7 @@ interface Tool {
   id: number
   title: string
   description: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   features: string[]
   premium: boolean
   available: boolean

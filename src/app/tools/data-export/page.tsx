@@ -24,11 +24,13 @@ interface Dataset {
   rows: number
   columns: number
   size: string
-  icon: typeof TableCellsIcon
+  icon: React.ComponentType<{ className?: string }>
   preview: string[]
   tags: string[]
   tableName?: string
   relatedTables?: string[]
+  type?: 'datamart' | 'table'
+  tableCount?: number
 }
 
 // Icon mapping for different categories
@@ -101,7 +103,7 @@ export default function DataExportPage() {
         
         if (data.success) {
           // Add icons to datasets
-          const datasetsWithIcons = data.datasets.map((dataset: any) => ({
+          const datasetsWithIcons = data.datasets.map((dataset: Dataset) => ({
             ...dataset,
             icon: getIconForCategory(dataset.category)
           }))
@@ -270,7 +272,7 @@ export default function DataExportPage() {
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {datasets
-                      .filter(dataset => (dataset as any).type === 'datamart')
+                      .filter(dataset => dataset.type === 'datamart')
                       .map((dataset) => {
                         const Icon = dataset.icon
                         return (
@@ -290,7 +292,7 @@ export default function DataExportPage() {
                                         {dataset.category}
                                       </span>
                                       <span className="text-xs bg-green-400/20 text-green-400 px-2 py-1 rounded-full font-medium">
-                                        {(dataset as any).tableCount} tables
+                                        {dataset.tableCount} tables
                                       </span>
                                     </div>
                                   </div>
@@ -368,7 +370,7 @@ export default function DataExportPage() {
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     {datasets
-                      .filter(dataset => (dataset as any).type === 'table')
+                      .filter(dataset => dataset.type === 'table')
                       .map((dataset) => {
                         const Icon = dataset.icon
                         return (
@@ -686,8 +688,8 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                 <div>
                   <h3 className="text-xl font-semibold">{selectedDataset.name} - API Connection</h3>
                   <p className="text-sm text-gray-400 mt-1">
-                    {(selectedDataset as any).type === 'datamart' 
-                      ? `Datamart with ${(selectedDataset as any).tableCount} tables` 
+                    {selectedDataset.type === 'datamart' 
+                      ? `Datamart with ${selectedDataset.tableCount} tables` 
                       : 'Single table dataset'}
                   </p>
                 </div>
@@ -714,7 +716,7 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                   <div className="bg-gray-800 p-3 rounded-lg">
                     <span className="text-gray-400">Download:</span>
                     <code className="ml-2 text-green-400">
-                      /download{(selectedDataset as any).type === 'datamart' ? '?format=xlsx' : '?format=csv'}
+                      /download{selectedDataset.type === 'datamart' ? '?format=xlsx' : '?format=csv'}
                     </code>
                   </div>
                 </div>
@@ -731,15 +733,15 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                       <div className="bg-gray-900 p-2 rounded">
                         <code className="text-xs text-green-400">
                           https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=csv
-                          {(selectedDataset as any).type === 'datamart' && <span className="text-blue-400">&table=table_name</span>}
+                          {selectedDataset.type === 'datamart' && <span className="text-blue-400">&table=table_name</span>}
                         </code>
                       </div>
                     </div>
-                    {(selectedDataset as any).type === 'datamart' && (
+                    {selectedDataset.type === 'datamart' && (
                       <div>
                         <p className="text-xs text-gray-400 mb-1">Available tables:</p>
                         <div className="flex flex-wrap gap-1">
-                          {(selectedDataset as any).relatedTables?.map((table: string, index: number) => (
+                          {selectedDataset.relatedTables?.map((table: string, index: number) => (
                             <span key={index} className="text-xs bg-blue-400/10 text-blue-400 px-2 py-1 rounded">
                               {table}
                             </span>
@@ -761,7 +763,7 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                 <div className="bg-gray-800 p-4 rounded-lg">
                   <p className="text-sm text-gray-300 mb-3">Import data into Excel:</p>
                   <div className="space-y-3">
-                    {(selectedDataset as any).type === 'datamart' ? (
+                    {selectedDataset.type === 'datamart' ? (
                       <>
                         <div>
                           <p className="text-xs text-gray-400 mb-1"><strong>Option 1:</strong> Download complete datamart as Excel file</p>
@@ -770,7 +772,7 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                               https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=xlsx
                             </code>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">This gives you all {(selectedDataset as any).tableCount} tables as separate sheets</p>
+                          <p className="text-xs text-gray-500 mt-1">This gives you all {selectedDataset.tableCount} tables as separate sheets</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-400 mb-1"><strong>Option 2:</strong> Import specific tables via Data → From Web</p>
@@ -830,7 +832,7 @@ print(paste("Found", length(music_data$data), "music plays"))`}
               <div className="flex gap-3 pt-4 border-t border-gray-700">
                 <button
                   onClick={() => {
-                    const url = `https://analysthub.com/api/datasets/${selectedDataset.id}/download?format=${(selectedDataset as any).type === 'datamart' ? 'xlsx' : 'csv'}`
+                    const url = `https://analysthub.com/api/datasets/${selectedDataset.id}/download?format=${selectedDataset.type === 'datamart' ? 'xlsx' : 'csv'}`
                     navigator.clipboard.writeText(url)
                     alert('Primary download URL copied to clipboard!')
                   }}

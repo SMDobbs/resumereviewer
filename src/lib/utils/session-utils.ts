@@ -40,8 +40,8 @@ export async function clearAuthenticationData(): Promise<boolean> {
     try {
       localStorage.clear()
       sessionStorage.clear()
-    } catch (e) {
-      console.warn('Could not clear storage:', e)
+    } catch {
+      console.warn('Could not clear storage')
     }
     
     // 4. Clear service worker caches
@@ -51,8 +51,8 @@ export async function clearAuthenticationData(): Promise<boolean> {
         await Promise.all(
           cacheNames.map(cacheName => caches.delete(cacheName))
         )
-      } catch (e) {
-        console.warn('Could not clear caches:', e)
+      } catch {
+        console.warn('Could not clear caches')
       }
     }
     
@@ -65,8 +65,8 @@ export async function clearAuthenticationData(): Promise<boolean> {
           const deleteReq = indexedDB.deleteDatabase(dbName)
           deleteReq.onerror = () => console.warn(`Could not delete ${dbName} database`)
         })
-      } catch (e) {
-        console.warn('Could not clear IndexedDB:', e)
+      } catch {
+        console.warn('Could not clear IndexedDB')
       }
     }
     
@@ -111,7 +111,7 @@ export function detectSessionIssues(): {
         hasStaleSession = true
         issues.push('Stale user data in localStorage')
       }
-    } catch (e) {
+    } catch {
       // localStorage not available or accessible
     }
     
@@ -147,13 +147,13 @@ export async function forceCleanAuthState(): Promise<void> {
   // Additional cleanup for Next.js specific items
   try {
     // Clear Next.js router cache if possible
-    if ('router' in window && typeof (window as any).router?.reload === 'function') {
-      (window as any).router.reload()
+    if ('router' in window && typeof (window as { router?: { reload?: () => void } }).router?.reload === 'function') {
+      (window as { router: { reload: () => void } }).router.reload()
     } else {
       // Fallback to full page reload
       window.location.reload()
     }
-  } catch (e) {
+  } catch {
     console.warn('Could not reload router, falling back to page reload')
     window.location.reload()
   }
@@ -206,5 +206,43 @@ export function getAuthErrorMessage(errorMessage: string): {
     message: errorMessage,
     canClearCookies: true,
     shouldShowHelp: true
+  }
+}
+
+/**
+ * Clear authentication cookies specifically
+ */
+export function clearAuthCookies(): void {
+  const cookiesToClear = ['session', '__Secure-session', '__Host-session']
+  const domains = ['', '.localhost', window.location.hostname]
+  const paths = ['/', '/api', '/auth']
+  
+  cookiesToClear.forEach(cookieName => {
+    domains.forEach(domain => {
+      paths.forEach(path => {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; ${domain ? `domain=${domain};` : ''}`
+      })
+    })
+  })
+}
+
+export async function logout(): Promise<void> {
+  try {
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    })
+    
+    if (response.ok) {
+      // Clear all auth-related cookies
+      clearAuthCookies()
+      
+      // Redirect to home page
+      window.location.href = '/'
+    } else {
+      console.error('Logout failed')
+    }
+  } catch {
+    console.error('Logout error')
   }
 } 

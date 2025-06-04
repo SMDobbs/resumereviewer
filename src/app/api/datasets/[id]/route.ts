@@ -15,8 +15,19 @@ const azureConfig = {
   }
 }
 
+interface DatasetInfo {
+  name: string
+  description: string
+  category: string
+  type: 'datamart' | 'table'
+  mainTable: string
+  relatedTables: string[]
+  tableCount: number
+  tags: string[]
+}
+
 // Map dataset IDs to table names and metadata
-const datasetInfo: Record<string, any> = {
+const datasetInfo: Record<string, DatasetInfo> = {
   'ecom-datamart': {
     name: 'E-commerce Datamart',
     description: 'Complete e-commerce business intelligence datamart with products, customers, orders, and sales analytics. Perfect for retail dashboard projects.',

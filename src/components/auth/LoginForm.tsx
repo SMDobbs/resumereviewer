@@ -57,7 +57,7 @@ export default function LoginForm() {
       router.push('/dashboard')
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Something went wrong'
-      const { message, canClearCookies, shouldShowHelp } = getAuthErrorMessage(errorMessage)
+      const { message, canClearCookies: _canClearCookies, shouldShowHelp } = getAuthErrorMessage(errorMessage)
       
       setError(message)
       

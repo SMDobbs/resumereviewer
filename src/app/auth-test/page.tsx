@@ -6,8 +6,8 @@ import { clearAuthenticationData, detectSessionIssues } from '@/lib/utils/sessio
 
 export default function AuthTestPage() {
   const { user, loading, refreshUser } = useUser()
-  const [debugInfo, setDebugInfo] = useState<any>(null)
-  const [sessionIssues, setSessionIssues] = useState<any>(null)
+  const [debugInfo, setDebugInfo] = useState<Record<string, unknown> | null>(null)
+  const [sessionIssues, setSessionIssues] = useState<{ hasStaleSession: boolean; hasMultipleCookies: boolean; issues: string[] } | null>(null)
   const [testLoading, setTestLoading] = useState(false)
 
   useEffect(() => {

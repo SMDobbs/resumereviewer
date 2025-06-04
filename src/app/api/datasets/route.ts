@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { ConnectionPool } from 'mssql'
 
 // Azure SQL connection configuration
@@ -16,7 +16,7 @@ const azureConfig = {
 }
 
 // Get list of available tables/datasets
-export async function GET(request: NextRequest) {
+export async function GET(_request: Request) {
   try {
     // Organized by prefixes as datamarts and standalone tables
     const datasets = [

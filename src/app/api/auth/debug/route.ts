@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       try {
         sessionData = await verifySession(sessionCookie)
         sessionValid = !!sessionData
-      } catch (error) {
+      } catch {
         sessionValid = false
       }
     }
@@ -60,18 +60,10 @@ export async function GET(request: NextRequest) {
     response.headers.set('Expires', '0')
     
     return response
-  } catch (error) {
-    console.error('Debug endpoint error:', error)
-    const response = NextResponse.json({
-      error: 'Debug endpoint failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
-    
-    // Add cache control headers
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
-    response.headers.set('Pragma', 'no-cache')
-    response.headers.set('Expires', '0')
-    
-    return response
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Database connection failed' },
+      { status: 500 }
+    )
   }
 } 

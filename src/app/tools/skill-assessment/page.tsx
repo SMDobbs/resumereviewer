@@ -285,7 +285,7 @@ export default function SkillAssessmentPage() {
     if (!startTime) {
       setStartTime(new Date())
     }
-  }, [])
+  }, [startTime])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -514,13 +514,13 @@ Keep it encouraging but honest, focusing on practical skills for data analysts.`
       skillDescription: ''
     }
 
-    // Split by section headers
-    const summaryMatch = feedback.match(/\*\*Assessment Summary\*\*\s*(.*?)(?=\*\*|$)/s)
+    // Split by section headers - using [\s\S] instead of . with s flag for compatibility
+    const summaryMatch = feedback.match(/\*\*Assessment Summary\*\*\s*([\s\S]*?)(?=\*\*|$)/)
     if (summaryMatch) {
       sections.summary = summaryMatch[1].trim()
     }
 
-    const focusAreasMatch = feedback.match(/\*\*Priority Focus Areas\*\*\s*(.*?)(?=\*\*|$)/s)
+    const focusAreasMatch = feedback.match(/\*\*Priority Focus Areas\*\*\s*([\s\S]*?)(?=\*\*|$)/)
     if (focusAreasMatch) {
       sections.focusAreas = focusAreasMatch[1]
         .split('•')
@@ -528,7 +528,7 @@ Keep it encouraging but honest, focusing on practical skills for data analysts.`
         .map(item => item.trim())
     }
 
-    const nextStepsMatch = feedback.match(/\*\*Next Steps\*\*\s*(.*?)(?=\*\*|$)/s)
+    const nextStepsMatch = feedback.match(/\*\*Next Steps\*\*\s*([\s\S]*?)(?=\*\*|$)/)
     if (nextStepsMatch) {
       sections.nextSteps = nextStepsMatch[1]
         .split('•')
@@ -536,7 +536,7 @@ Keep it encouraging but honest, focusing on practical skills for data analysts.`
         .map(item => item.trim())
     }
 
-    const skillLevelMatch = feedback.match(/\*\*Skill Level:\s*(.*?)\*\*\s*(.*?)(?=\*\*|$)/s)
+    const skillLevelMatch = feedback.match(/\*\*Skill Level:\s*(.*?)\*\*\s*([\s\S]*?)(?=\*\*|$)/)
     if (skillLevelMatch) {
       sections.skillLevel = skillLevelMatch[1].trim()
       sections.skillDescription = skillLevelMatch[2].trim()
