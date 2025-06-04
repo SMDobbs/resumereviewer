@@ -66,23 +66,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   const login = async (email: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ email, password }),
-    })
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      })
 
-    const data = await response.json()
+      const data = await response.json()
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed')
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed')
+      }
+
+      // Set user data from response
+      setUser(data.user)
+      
+      // Redirect to dashboard
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Login error in UserContext:', error)
+      throw error // Re-throw so the component can handle it
     }
-
-    setUser(data.user)
-    router.push('/dashboard')
   }
 
   const logout = async () => {
