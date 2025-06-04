@@ -15,11 +15,7 @@ import {
   LightBulbIcon,
   FlagIcon,
   PlayIcon,
-  StarIcon,
-  TrophyIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  CalendarIcon
+  StarIcon
 } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
 
@@ -453,7 +449,7 @@ export default function SkillAssessmentPage() {
         }
       })
 
-      const prompt = `As an SQL expert and analytics mentor, provide personalized feedback for this assessment:
+      const prompt = `As an SQL expert and analytics coach, provide personalized feedback for this assessment:
 
 Score: ${score}%
 Skill Level: ${skillLevel.level}

@@ -11,10 +11,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Analytics Mentor - Land Your First Analytics Role",
-  description: "Get the tools, guides, and mentorship you need to land your first analytics role. From resume reviews to interview prep and skill assessments.",
-  keywords: "analytics career, first analytics job, analytics mentor, data analyst career transition, analytics resume, analytics interview prep, SQL learning, analytics skills",
-  authors: [{ name: "Analytics Mentor" }],
+  title: "Dobbs Analytics Coaching - Land Your First Analytics Role",
+  description: "Get the guidance, tools, and strategies you need to break into analytics and land your first role. Proven insights from Fortune 100 analysts.",
+  keywords: "analytics career, first analytics job, analytics coaching, data analyst career transition, analytics resume, analytics interview prep, SQL learning, analytics skills",
+  authors: [{ name: "Dobbs Analytics Coaching" }],
 };
 
 export const viewport: Viewport = {

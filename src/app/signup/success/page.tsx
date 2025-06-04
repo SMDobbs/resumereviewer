@@ -119,7 +119,7 @@ function SignupSuccessContent() {
             <CheckCircleIcon className="h-10 w-10 text-green-400" />
           </div>
           <h2 className="text-3xl font-extrabold text-white mb-2">
-            Welcome to Analytics Mentor!
+            Welcome to Dobbs Analytics Coaching!
           </h2>
           <p className="text-gray-400">
             Your premium account is ready

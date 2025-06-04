@@ -145,7 +145,7 @@ const Navigation = () => {
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
-            <span className="font-bold text-xl gradient-text">Analytics Mentor</span>
+            <span className="font-bold text-xl gradient-text">Dobbs Analytics Coaching</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -169,7 +169,7 @@ const Navigation = () => {
                     {activeDropdown === item.label && 'dropdownItems' in item && (
                       <div className="absolute top-full left-0 w-64 glass rounded-xl border border-gray-700/50 shadow-xl">
                         <div className="p-2">
-                          {item.dropdownItems?.map((dropdownItem: any) => {
+                          {item.dropdownItems?.map((dropdownItem: { href: string; label: string; icon: any; description: string }) => {
                             const Icon = dropdownItem.icon
                             return (
                               <Link
@@ -352,7 +352,7 @@ const Navigation = () => {
                         {item.label}
                       </div>
                       <div className="ml-4 space-y-1">
-                        {'dropdownItems' in item && item.dropdownItems?.map((dropdownItem: any) => {
+                        {'dropdownItems' in item && item.dropdownItems?.map((dropdownItem: { href: string; label: string; icon: any; description: string }) => {
                           const Icon = dropdownItem.icon
                           return (
                             <Link

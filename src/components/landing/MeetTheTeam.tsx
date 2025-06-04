@@ -1,4 +1,5 @@
 import { UserGroupIcon, BriefcaseIcon, ChartBarIcon } from '@heroicons/react/24/outline'
+import Image from 'next/image'
 
 export default function MeetTheTeam() {
   const team = [
@@ -55,10 +56,12 @@ export default function MeetTheTeam() {
                 <div className="relative flex-shrink-0">
                   {member.image ? (
                     <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg group-hover:shadow-green-400/25 transition-all duration-300">
-                      <img 
+                      <Image 
                         src={member.image} 
                         alt={member.name}
                         className="w-full h-full object-cover"
+                        width={96}
+                        height={96}
                       />
                     </div>
                   ) : (

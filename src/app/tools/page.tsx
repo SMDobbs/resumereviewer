@@ -3,8 +3,7 @@
 import Link from 'next/link'
 import { SparklesIcon, DocumentTextIcon, ChartBarIcon, LockClosedIcon, CheckIcon, CloudArrowDownIcon, TrophyIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
-import { useState, useEffect } from 'react'
-import Paywall from '@/components/Paywall'
+import { useState, useEffect, useCallback } from 'react'
 
 interface AssessmentSummary {
   totalAttempts: number
@@ -15,19 +14,24 @@ interface AssessmentSummary {
   lastTaken: string | null
 }
 
+interface Tool {
+  id: number
+  title: string
+  description: string
+  icon: any
+  features: string[]
+  premium: boolean
+  available: boolean
+  route: string
+  isAssessment?: boolean
+}
+
 export default function ToolsPage() {
   const { user } = useUser()
   const [assessmentSummary, setAssessmentSummary] = useState<AssessmentSummary | null>(null)
   const [loadingAssessment, setLoadingAssessment] = useState(false)
 
-  // Fetch assessment history for the SQL tool
-  useEffect(() => {
-    if (user?.id) {
-      fetchAssessmentSummary()
-    }
-  }, [user])
-
-  const fetchAssessmentSummary = async () => {
+  const fetchAssessmentSummary = useCallback(async () => {
     if (!user?.id) return
     
     setLoadingAssessment(true)
@@ -43,7 +47,14 @@ export default function ToolsPage() {
     } finally {
       setLoadingAssessment(false)
     }
-  }
+  }, [user?.id])
+
+  // Fetch assessment history for the SQL tool
+  useEffect(() => {
+    if (user?.id) {
+      fetchAssessmentSummary()
+    }
+  }, [user?.id, fetchAssessmentSummary])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -52,7 +63,7 @@ export default function ToolsPage() {
     })
   }
 
-  const tools = [
+  const tools: Tool[] = [
     {
       id: 1,
       title: "AI Resume Reviewer",
@@ -143,7 +154,7 @@ export default function ToolsPage() {
             const Icon = tool.icon
             
             // Special rendering for SQL Assessment tool
-            if ((tool as any).isAssessment) {
+            if (tool.isAssessment) {
               const toolContent = (
                 <div key={tool.id} className="glass rounded-xl p-7 relative h-full flex flex-col">
                   <div className="flex items-start justify-between mb-5">

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { 
   ArrowLeftIcon, 
   CloudArrowDownIcon, 
-  DocumentTextIcon,
   CodeBracketIcon,
   TableCellsIcon,
   ChartBarIcon,
@@ -123,7 +122,7 @@ export default function DataExportPage() {
 
   const handleDownload = async (dataset: Dataset, format: 'csv' | 'json' | 'xlsx') => {
     try {
-      let url = `/api/datasets/${dataset.id}/download?format=${format}`
+      const url = `/api/datasets/${dataset.id}/download?format=${format}`
       
       if (format === 'csv' || format === 'json') {
         const response = await fetch(url)

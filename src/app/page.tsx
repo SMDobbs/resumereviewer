@@ -21,7 +21,7 @@ export default function Home() {
   // Demo user data - in a real app, this would come from your auth system
   const user = {
     firstName: "Demo User",
-    email: "demo@analyticsmentor.com"
+    email: "demo@dobbsanalyticscoaching.com"
   }
 
   // If user is not signed in, show marketing landing page
