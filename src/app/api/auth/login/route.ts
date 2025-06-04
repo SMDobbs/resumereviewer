@@ -11,10 +11,17 @@ export async function POST(request: NextRequest) {
 
     // Validation
     if (!email || !password) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
       )
+      
+      // Add cache control headers
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
     }
 
     // Find user
@@ -23,19 +30,33 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 400 }
       )
+      
+      // Add cache control headers
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
     }
 
     // Verify password
     const isValidPassword = await verifyPassword(password, user.password)
     if (!isValidPassword) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 400 }
       )
+      
+      // Add cache control headers
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
     }
 
     // Create session
@@ -52,14 +73,23 @@ export async function POST(request: NextRequest) {
     const { password: _, ...userWithoutPassword } = user
     
     const response = NextResponse.json({ user: userWithoutPassword })
+    
+    // Set session cookie with enhanced security
     setSessionCookie(response, sessionToken)
 
     return response
   } catch (error) {
     console.error('Login error:', error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
+    
+    // Add cache control headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   }
 } 

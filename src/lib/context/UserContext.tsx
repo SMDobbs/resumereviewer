@@ -39,13 +39,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store'
+      })
+      
       if (response.ok) {
         const data = await response.json()
-        setUser(data.user)
+        if (data.user) {
+          setUser(data.user)
+        } else {
+          setUser(null)
+        }
+      } else if (response.status === 401) {
+        setUser(null)
+      } else {
+        console.warn('Auth check failed with status:', response.status)
+        setUser(null)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
+      setUser(null)
     } finally {
       setLoading(false)
     }
@@ -57,6 +71,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ email, password }),
     })
 
@@ -74,6 +89,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include'
       })
     } catch (error) {
       console.error('Logout error:', error)
@@ -85,10 +101,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store'
+      })
+      
       if (response.ok) {
         const data = await response.json()
-        setUser(data.user)
+        if (data.user) {
+          setUser(data.user)
+        } else {
+          setUser(null)
+        }
       } else {
         setUser(null)
       }

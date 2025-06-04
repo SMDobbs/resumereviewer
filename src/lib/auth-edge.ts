@@ -8,8 +8,10 @@ export interface SessionPayload {
   userId: string
   email: string
   role: string
-  expiresAt: Date
-  [key: string]: string | Date | number | boolean
+  expiresAt: Date | string
+  iat?: number
+  exp?: number
+  [key: string]: string | Date | number | boolean | undefined
 }
 
 export async function verifySession(session: string): Promise<SessionPayload | null> {
@@ -24,13 +26,25 @@ export async function verifySession(session: string): Promise<SessionPayload | n
       return null
     }
     
-    // Check if token is expired
-    if (sessionPayload.expiresAt && new Date(sessionPayload.expiresAt) < new Date()) {
-      return null
+    // Check custom expiration time as well as JWT exp
+    if (sessionPayload.expiresAt) {
+      const expirationDate = typeof sessionPayload.expiresAt === 'string' 
+        ? new Date(sessionPayload.expiresAt) 
+        : sessionPayload.expiresAt
+      
+      if (expirationDate < new Date()) {
+        return null
+      }
     }
     
     return sessionPayload
-  } catch {
+  } catch (error) {
+    // Log error details for debugging but don't expose them
+    console.error('JWT verification failed in middleware:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      hasSession: !!session,
+      sessionLength: session?.length || 0
+    })
     return null
   }
 } 

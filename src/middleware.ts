@@ -26,14 +26,17 @@ export async function middleware(request: NextRequest) {
   // Get session from cookies - use JWT verification only (no DB queries in middleware)
   const sessionCookie = request.cookies.get('session')?.value
   let isAuthenticated = false
+  let sessionError = false
   
   if (sessionCookie) {
     try {
       const session = await verifySession(sessionCookie)
       isAuthenticated = !!session
-    } catch {
+    } catch (error) {
       // JWT verification failed, user is not authenticated
+      console.warn('Session verification failed in middleware:', error)
       isAuthenticated = false
+      sessionError = true
     }
   }
   
@@ -49,15 +52,46 @@ export async function middleware(request: NextRequest) {
   
   // Redirect to login if trying to access protected route without authentication
   if (isProtectedRoute && !isAuthenticated) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const loginUrl = new URL('/login', request.url)
+    
+    // If there was a session error, add a query parameter to indicate cookie clearing might help
+    if (sessionError) {
+      loginUrl.searchParams.set('error', 'session_invalid')
+    }
+    
+    const response = NextResponse.redirect(loginUrl)
+    
+    // Add cache control headers to prevent caching of redirect responses
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   }
   
   // Redirect to dashboard if trying to access auth routes while authenticated
   if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const response = NextResponse.redirect(new URL('/dashboard', request.url))
+    
+    // Add cache control headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   }
   
-  return NextResponse.next()
+  // For all other requests, add cache control headers if they involve authentication
+  const response = NextResponse.next()
+  
+  // Add cache control headers for authenticated routes or auth-related pages
+  if (isProtectedRoute || isAuthRoute || sessionCookie) {
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+  }
+  
+  return response
 }
 
 export const config = {

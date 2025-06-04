@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
+import { clearAuthenticationData, getAuthErrorMessage } from '@/lib/utils/session-utils'
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -14,13 +15,25 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showSessionError, setShowSessionError] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { refreshUser } = useUser()
+
+  // Check for session error from middleware redirect
+  useEffect(() => {
+    const errorParam = searchParams.get('error')
+    if (errorParam === 'session_invalid') {
+      setShowSessionError(true)
+      setError('Your session has expired or is invalid. Please clear your cookies and try logging in again.')
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setShowSessionError(false)
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -43,7 +56,15 @@ export default function LoginForm() {
       // Redirect to dashboard after successful login
       router.push('/dashboard')
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Something went wrong')
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong'
+      const { message, canClearCookies, shouldShowHelp } = getAuthErrorMessage(errorMessage)
+      
+      setError(message)
+      
+      // Show session error help if recommended
+      if (shouldShowHelp) {
+        setShowSessionError(true)
+      }
     } finally {
       setLoading(false)
     }
@@ -52,6 +73,7 @@ export default function LoginForm() {
   const handleDemoLogin = async () => {
     setLoading(true)
     setError('')
+    setShowSessionError(false)
 
     try {
       // Use demo credentials
@@ -121,20 +143,36 @@ export default function LoginForm() {
 
   const handleClearCookies = async () => {
     try {
-      // Clear session cookies by calling logout
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      })
+      setLoading(true)
       
-      // Clear all cookies manually as well
-      document.cookie.split(";").forEach(function(c) {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
+      // Use the comprehensive authentication data clearing function
+      const success = await clearAuthenticationData()
       
-      // Reload the page to reset state
-      window.location.reload()
+      if (success) {
+        setError('')
+        setShowSessionError(false)
+        
+        // Show success message briefly
+        setError('All authentication data cleared successfully! You can now try logging in again.')
+        
+        // Clear the success message after 3 seconds
+        setTimeout(() => {
+          setError('')
+        }, 3000)
+        
+        // Remove error query parameter from URL
+        const url = new URL(window.location.href)
+        url.searchParams.delete('error')
+        router.replace(url.pathname + url.search)
+        
+      } else {
+        throw new Error('Failed to clear authentication data')
+      }
     } catch (error) {
-      console.error('Error clearing cookies:', error)
+      console.error('Error clearing authentication data:', error)
+      setError('Unable to clear authentication data automatically. Please try clearing your browser cookies manually.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -158,6 +196,35 @@ export default function LoginForm() {
         </div>
         
         <div className="glass rounded-xl p-8">
+          {/* Session Error Alert */}
+          {showSessionError && (
+            <div className="mb-6 p-4 bg-amber-900/20 border border-amber-400/20 rounded-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-amber-400">
+                    Session Issue Detected
+                  </h3>
+                  <p className="text-sm text-amber-300 mt-1">
+                    Your browser may have cached authentication data that's causing issues.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleClearCookies}
+                    disabled={loading}
+                    className="mt-2 text-sm bg-amber-400/20 text-amber-400 px-3 py-1 rounded hover:bg-amber-400/30 transition-colors disabled:opacity-50"
+                  >
+                    Clear Cookies & Cache
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Demo Option */}
           <div className="mb-6 p-4 bg-green-900/20 border border-green-400/20 rounded-lg">
             <p className="text-green-400 text-sm mb-3 text-center">
@@ -183,16 +250,21 @@ export default function LoginForm() {
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-900/20 border border-red-400/20 text-red-400 px-4 py-3 rounded-lg relative">
+              <div className={`border px-4 py-3 rounded-lg relative ${
+                error.includes('successfully') 
+                  ? 'bg-green-900/20 border-green-400/20 text-green-400' 
+                  : 'bg-red-900/20 border-red-400/20 text-red-400'
+              }`}>
                 {error}
-                {error.includes('Access Denied') && (
+                {(error.includes('Access Denied') || error.includes('access denied') || showSessionError) && !error.includes('successfully') && (
                   <div className="mt-2">
                     <button
                       type="button"
                       onClick={handleClearCookies}
-                      className="text-xs text-red-300 underline hover:text-red-200"
+                      disabled={loading}
+                      className="text-xs text-red-300 underline hover:text-red-200 disabled:opacity-50"
                     >
-                      Having login issues? Clear cookies and try again
+                      Clear cookies and try again
                     </button>
                   </div>
                 )}
@@ -294,18 +366,24 @@ export default function LoginForm() {
               </p>
             </div>
 
-            {/* Troubleshooting section */}
+            {/* Enhanced Troubleshooting section */}
             <div className="text-center pt-4 border-t border-gray-700">
               <p className="text-xs text-gray-500 mb-2">
                 Having trouble accessing the app?
               </p>
-              <button
-                type="button"
-                onClick={handleClearCookies}
-                className="text-xs text-gray-400 hover:text-gray-300 underline"
-              >
-                Clear cookies and reset session
-              </button>
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={handleClearCookies}
+                  disabled={loading}
+                  className="block w-full text-xs text-gray-400 hover:text-gray-300 underline disabled:opacity-50"
+                >
+                  Clear cookies and reset session
+                </button>
+                <p className="text-xs text-gray-600">
+                  This fixes most login issues caused by cached data
+                </p>
+              </div>
             </div>
           </form>
         </div>

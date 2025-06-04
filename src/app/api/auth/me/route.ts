@@ -8,18 +8,39 @@ export async function GET(request: NextRequest) {
     const user = await getCurrentUser(request)
     
     if (!user) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
+      
+      // Add cache control headers to prevent caching of auth failures
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
     }
 
-    return NextResponse.json({ user })
+    const response = NextResponse.json({ user })
+    
+    // Add cache control headers to prevent caching of user data
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   } catch (error) {
     console.error('Get user error:', error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
+    
+    // Add cache control headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   }
 } 
