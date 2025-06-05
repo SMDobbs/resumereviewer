@@ -1,0 +1,27 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="overlayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="192" height="192" rx="40" fill="url(#logoGradient)" />
+  
+  <!-- Material Icons insert_chart style bars -->
+  <rect x="48" y="120" width="18" height="48" fill="white" rx="3"/>
+  <rect x="78" y="96" width="18" height="72" fill="white" rx="3"/>
+  <rect x="108" y="72" width="18" height="96" fill="white" rx="3"/>
+  <rect x="138" y="108" width="18" height="60" fill="white" rx="3"/>
+  
+  <!-- Chart baseline -->
+  <rect x="42" y="168" width="108" height="3" fill="white" opacity="0.4" rx="1.5"/>
+  
+  <!-- Subtle overlay -->
+  <rect width="192" height="192" rx="40" fill="url(#overlayGradient)"/>
+</svg> 

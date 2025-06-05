@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { ChevronDownIcon, BookOpenIcon, DocumentTextIcon, FolderIcon, SparklesIcon, UserGroupIcon, UserIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
+import Logo from './Logo'
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -139,14 +140,7 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-green-400/25 transition-all duration-300">
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <span className="font-bold text-xl gradient-text">Dobbs Analytics Coaching</span>
-          </Link>
+          <Logo variant="navbar" showText={true} size="md" />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
@@ -206,7 +200,7 @@ const Navigation = () => {
                     href={item.href!}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive(item.href!)
-                        ? 'text-green-400 bg-green-400/10 shadow-sm'
+                        ? 'text-green-400 bg-green-400/10'
                         : 'text-gray-300 hover:text-green-400 hover:bg-green-400/5'
                     }`}
                   >

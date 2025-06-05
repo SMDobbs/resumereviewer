@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CheckIcon, UserGroupIcon, BriefcaseIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
+import { CheckIcon, UserGroupIcon, BriefcaseIcon, DocumentTextIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 
 export default function PricingSection() {
   return (
@@ -11,7 +11,7 @@ export default function PricingSection() {
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
             Get unlimited access to career articles, curated learning roadmaps, downloadable resources, 
-            and strategic guidance. Plus optional 1:1 services for personalized career coaching.
+            strategic guidance, and direct messaging with our expert team. Cancel anytime.
           </p>
         </div>
 
@@ -20,17 +20,17 @@ export default function PricingSection() {
           <div className="glass rounded-xl p-8 relative border-2 border-green-400">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
               <span className="bg-gradient-to-r from-green-400 to-green-600 text-black px-4 py-1 rounded-full text-sm font-semibold">
-                FULL ACCESS
+                MONTHLY SUBSCRIPTION
               </span>
             </div>
             
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-2">Full Access Pass</h3>
+              <h3 className="text-3xl font-bold mb-2">AnalystHub Pro</h3>
               <div className="text-5xl font-bold mb-2">
-                <span className="gradient-text">$29.99</span>
-                <span className="text-lg text-gray-400"> one-time</span>
+                <span className="gradient-text">$19.99</span>
+                <span className="text-lg text-gray-400">/month</span>
               </div>
-              <p className="text-gray-400">Lifetime access to all career guidance, resources, and curated learning paths</p>
+              <p className="text-gray-400">Complete access to all career resources plus direct messaging support</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -101,44 +101,44 @@ export default function PricingSection() {
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold mb-4 text-green-400">Industry Insights</h4>
+                <h4 className="text-lg font-semibold mb-4 text-green-400">Expert Support</h4>
                 <ul className="space-y-3">
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Real estate analytics guide</span>
+                    <span className="text-sm">Direct messaging access</span>
                   </li>
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Retail & CPG insights</span>
+                    <span className="text-sm">Quick career questions</span>
                   </li>
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Education sector analysis</span>
+                    <span className="text-sm">Personalized guidance</span>
                   </li>
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Fortune 100 strategies</span>
+                    <span className="text-sm">Industry-specific insights</span>
                   </li>
                 </ul>
               </div>
             </div>
 
             <Link href="/dashboard" className="btn-primary w-full text-lg py-4 block text-center">
-              Get Full Access Now
+              Start Your Subscription
             </Link>
             <p className="text-center text-sm text-gray-500 mt-3">
-              One-time payment • Lifetime access • No recurring charges
+              Monthly billing • Cancel anytime • 7-day free trial
             </p>
           </div>
         </div>
 
-        {/* 1:1 Services Add-ons */}
+        {/* Premium 1:1 Services Add-ons */}
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold mb-4">
-            <span className="gradient-text">Optional</span> 1:1 Career Services
+            <span className="gradient-text">Premium</span> 1:1 Career Services
           </h3>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Need personalized guidance? Book individual sessions for hands-on help with career strategy and interview preparation.
+            Need intensive, personalized guidance? Book individual deep-dive sessions for comprehensive career strategy and interview preparation.
           </p>
         </div>
 
@@ -248,8 +248,8 @@ export default function PricingSection() {
 
         <div className="text-center mt-12">
           <p className="text-gray-400 text-sm">
-            All 1:1 services include detailed follow-up materials and email support. 
-            <span className="text-green-400">Full Access Pass required</span> to book sessions.
+            All premium 1:1 services include detailed follow-up materials and extended support. 
+            <span className="text-green-400">Active subscription required</span> to book sessions.
           </p>
         </div>
       </div>
