@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CheckIcon, UserGroupIcon, BriefcaseIcon, DocumentTextIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
+import { CheckIcon, UserGroupIcon, BriefcaseIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 
 export default function PricingSection() {
   return (
