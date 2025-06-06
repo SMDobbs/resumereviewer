@@ -158,7 +158,34 @@ NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up  
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
+
+# SEO Configuration
+NEXT_PUBLIC_BASE_URL=https://your-domain.com
 ```
+
+### SEO & Search Engine Optimization
+
+The platform includes comprehensive SEO features to improve Google search rankings:
+
+#### Sitemap Generation
+- **Automatic sitemap**: Available at `/sitemap.xml`
+- **Dynamic updates**: Automatically includes all routes
+- **SEO-optimized**: Proper priority and change frequency settings
+- **Robots.txt**: Available at `/robots.txt` with proper directives
+
+#### SEO Best Practices Implemented
+- **Structured URLs**: Clean, descriptive route structure
+- **Priority ranking**: Homepage (1.0) > Tools/Coaching (0.9) > Articles (0.8) > Resources (0.6)
+- **Change frequency**: Daily for articles, weekly for tools, monthly for static resources
+- **Search engine directives**: Proper crawling permissions and disallows
+
+#### Configuration
+Add your production domain to environment variables:
+```env
+NEXT_PUBLIC_BASE_URL=https://your-production-domain.com
+```
+
+The sitemap will automatically use this URL for generating proper canonical URLs for search engines.
 
 ## Future Enhancements
 

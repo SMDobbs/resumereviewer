@@ -17,16 +17,16 @@ export const metadata: Metadata = {
   authors: [{ name: "Dobbs Analytics Coaching" }],
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' },
+      { url: '/logo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logo.png', sizes: '16x16', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
     ],
     other: [
-      { rel: 'icon', url: '/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' },
-      { rel: 'icon', url: '/icon-512.svg', sizes: '512x512', type: 'image/svg+xml' },
+      { rel: 'icon', url: '/logo.png', sizes: '192x192', type: 'image/png' },
+      { rel: 'icon', url: '/logo.png', sizes: '512x512', type: 'image/png' },
     ],
   },
   manifest: '/site.webmanifest',
