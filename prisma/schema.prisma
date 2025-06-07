@@ -39,6 +39,9 @@ model User {
   toolUsage         ToolUsage[]
   sqlAssessments    SQLAssessmentResult[]
   
+  // API access
+  apiKeys           ApiKey[]
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -201,6 +204,27 @@ model SQLAssessmentResult {
   createdAt       DateTime @default(now())
   
   @@map("sql_assessment_results")
+}
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  key         String   @unique  // The actual API key
+  name        String              // User-friendly name for the key
+  userId      String
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Usage tracking
+  usageCount  Int      @default(0)
+  lastUsed    DateTime?
+  
+  // Management
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("api_keys")
 }
 
 // Enums

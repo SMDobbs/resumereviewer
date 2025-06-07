@@ -63,25 +63,30 @@ const apiEndpoints = [
     method: 'GET',
     endpoint: '/api/datasets',
     description: 'List all available datasets (datamarts and tables) with metadata',
-    example: 'curl "https://analysthub.com/api/datasets"'
+    example: 'curl -H "Authorization: Bearer your_api_key" "https://analysthub.com/api/datasets"',
+    authRequired: true
   },
   {
     method: 'GET',
     endpoint: '/api/datasets/{id}',
     description: 'Get detailed metadata for a specific dataset including all related tables',
-    example: 'curl "https://analysthub.com/api/datasets/ecom-datamart"'
+    example: 'curl -H "Authorization: Bearer your_api_key" "https://analysthub.com/api/datasets/ecom-datamart"',
+    authRequired: true
   },
   {
     method: 'GET',
     endpoint: '/api/datasets/{id}/download',
-    description: 'Download dataset. For datamarts: use ?format=xlsx for Excel with all tables as sheets',
-    example: 'curl "https://analysthub.com/api/datasets/ecom-datamart/download?format=xlsx"'
+    description: 'Download dataset. For datamarts: use ?format=xlsx for Excel with all tables as sheets. API key provides higher rate limits.',
+    example: 'curl -H "Authorization: Bearer your_api_key" "https://analysthub.com/api/datasets/ecom-datamart/download?format=xlsx"',
+    authRequired: false,
+    note: 'API key optional but recommended for higher rate limits'
   },
   {
     method: 'POST',
     endpoint: '/api/datasets/{id}/query',
-    description: 'Query dataset with filters, sorting, and table selection',
-    example: 'curl -X POST -H "Content-Type: application/json" -d \'{"table": "ecom_orders", "filters": {"total_amount": 100}, "limit": 500}\' "https://analysthub.com/api/datasets/ecom-datamart/query"'
+    description: 'Query dataset with filters, sorting, and table selection. Requires API key.',
+    example: 'curl -X POST -H "Authorization: Bearer your_api_key" -H "Content-Type: application/json" -d \'{"table": "ecom_orders", "filters": {"total_amount": 100}, "limit": 500}\' "https://analysthub.com/api/datasets/ecom-datamart/query"',
+    authRequired: true
   }
 ]
 
@@ -92,12 +97,44 @@ export default function DataExportPage() {
   const [error, setError] = useState<string | null>(null)
   const [showApiModal, setShowApiModal] = useState(false)
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
+  
+  // API Key Management
+  const [userApiKeys, setUserApiKeys] = useState<any[]>([])
+  const [loadingApiKeys, setLoadingApiKeys] = useState(true)
+  const [generatingKey, setGeneratingKey] = useState(false)
+  const [downloadingDataset, setDownloadingDataset] = useState<string | null>(null)
+  const [copyFeedback, setCopyFeedback] = useState<string | null>(null)
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null)
+
+  // Fetch user's API keys from server
+  const fetchApiKeys = async () => {
+    try {
+      setLoadingApiKeys(true)
+      const response = await fetch('/api/api-keys', {
+        credentials: 'include'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        setUserApiKeys(data.apiKeys || [])
+      } else {
+        setUserApiKeys([])
+      }
+    } catch (error) {
+      console.error('Error fetching API keys:', error)
+      setUserApiKeys([])
+    } finally {
+      setLoadingApiKeys(false)
+    }
+  }
 
   // Fetch datasets from API
   useEffect(() => {
     const fetchDatasets = async () => {
       try {
         setLoading(true)
+        
+        // Fetch datasets - no API key needed for viewing
         const response = await fetch('/api/datasets')
         const data = await response.json()
         
@@ -112,7 +149,7 @@ export default function DataExportPage() {
           setError(data.error || 'Failed to fetch datasets')
         }
       } catch (err) {
-        setError('Failed to connect to database')
+        setError('Unable to load datasets. Please try again later.')
         console.error('Error fetching datasets:', err)
       } finally {
         setLoading(false)
@@ -120,15 +157,49 @@ export default function DataExportPage() {
     }
 
     fetchDatasets()
+    fetchApiKeys()
   }, [])
 
   const handleDownload = async (dataset: Dataset, format: 'csv' | 'json' | 'xlsx') => {
+    if (downloadingDataset) {
+      alert('Please wait for the current download to complete.')
+      return
+    }
+
     try {
-      const url = `/api/datasets/${dataset.id}/download?format=${format}`
+      setDownloadingDataset(dataset.id)
       
-      if (format === 'csv' || format === 'json') {
-        const response = await fetch(url)
+      // Use API key if available for better rate limits
+      const headers: HeadersInit = {}
+      if (userApiKeys.length > 0) {
+        const activeKey = userApiKeys.find(key => key.isActive)
+        if (activeKey && activeKey.keyPreview) {
+          // Get full key from localStorage if available
+          const storedKey = localStorage.getItem('analysthub_api_key')
+          if (storedKey && storedKey.startsWith(activeKey.keyPreview.replace('...', ''))) {
+            headers['Authorization'] = `Bearer ${storedKey}`
+          }
+        }
+      }
+      
+      const url = `/api/datasets/${dataset.id}/download?format=${format}`
+      const response = await fetch(url, { headers })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
         
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('retry-after')
+          const waitTime = retryAfter ? `${retryAfter} seconds` : 'a few minutes'
+          alert(`Rate limit exceeded. ${errorData.error || 'Please wait'} ${waitTime} before downloading again.\n\n${errorData.suggestion || 'Consider generating an API key for higher rate limits.'}`)
+          return
+        }
+        
+        throw new Error(errorData.error || 'Download failed')
+      }
+      
+      // Handle different file formats
+      if (format === 'csv' || format === 'json') {
         if (format === 'csv') {
           const csvData = await response.text()
           const blob = new Blob([csvData], { type: 'text/csv' })
@@ -153,8 +224,6 @@ export default function DataExportPage() {
           document.body.removeChild(a)
         }
       } else if (format === 'xlsx') {
-        // For Excel downloads, we need to handle the binary response differently
-        const response = await fetch(url)
         const blob = await response.blob()
         const downloadUrl = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
@@ -165,9 +234,18 @@ export default function DataExportPage() {
         window.URL.revokeObjectURL(downloadUrl)
         document.body.removeChild(a)
       }
+      
+      // Show remaining download count if available
+      const remaining = response.headers.get('x-ratelimit-remaining')
+      if (remaining) {
+        console.log(`Downloads remaining: ${remaining}`)
+      }
+      
     } catch (error) {
       console.error('Download failed:', error)
-      alert('Download failed. Please try again.')
+      alert(`Download failed: ${(error as Error).message}`)
+    } finally {
+      setDownloadingDataset(null)
     }
   }
 
@@ -176,11 +254,97 @@ export default function DataExportPage() {
     setShowApiModal(true)
   }
 
-  const generateApiKey = () => {
-    // In a real implementation, this would generate a real API key
-    const sampleKey = 'ah_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-    navigator.clipboard.writeText(sampleKey)
-    alert(`API Key generated and copied to clipboard: ${sampleKey}`)
+  const generateApiKey = async () => {
+    if (generatingKey) return
+    
+    try {
+      setGeneratingKey(true)
+      setActionFeedback(null)
+      
+      const response = await fetch('/api/api-keys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: `API Key ${new Date().toLocaleDateString()}`
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          setActionFeedback('Please log in to generate an API key.')
+          return
+        }
+        if (response.status === 429) {
+          const retryAfter = data.retryAfter ? `${data.retryAfter} seconds` : 'a few minutes'
+          setActionFeedback(`Rate limit exceeded. Please wait ${retryAfter} before generating another API key.`)
+          return
+        }
+        throw new Error(data.error || 'Failed to generate API key')
+      }
+      
+      if (data.success) {
+        const newApiKey = data.apiKey.key
+        
+        // Store in localStorage for API calls
+        localStorage.setItem('analysthub_api_key', newApiKey)
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(newApiKey)
+        
+        // Refresh API keys list
+        await fetchApiKeys()
+        
+        setActionFeedback('API key generated successfully! Key copied to clipboard and saved.')
+        
+        // Clear feedback after 5 seconds
+        setTimeout(() => setActionFeedback(null), 5000)
+      }
+      
+    } catch (error) {
+      console.error('Error generating API key:', error)
+      setActionFeedback(`Failed to generate API key: ${(error as Error).message}`)
+      setTimeout(() => setActionFeedback(null), 5000)
+    } finally {
+      setGeneratingKey(false)
+    }
+  }
+
+  const deleteApiKey = async (keyId: string) => {
+    try {
+      const response = await fetch(`/api/api-keys/${keyId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        // Remove from localStorage if it matches
+        const storedKey = localStorage.getItem('analysthub_api_key')
+        if (storedKey) {
+          const keyToDelete = userApiKeys.find(k => k.id === keyId)
+          if (keyToDelete && storedKey.startsWith(keyToDelete.keyPreview.replace('...', ''))) {
+            localStorage.removeItem('analysthub_api_key')
+          }
+        }
+        
+        // Refresh the list
+        await fetchApiKeys()
+        setActionFeedback('API key deleted successfully.')
+        setTimeout(() => setActionFeedback(null), 3000)
+      } else {
+        throw new Error(data.error || 'Failed to delete API key')
+      }
+    } catch (error) {
+      console.error('Error deleting API key:', error)
+      setActionFeedback(`Failed to delete API key: ${(error as Error).message}`)
+      setTimeout(() => setActionFeedback(null), 5000)
+    }
   }
 
   return (
@@ -198,6 +362,88 @@ export default function DataExportPage() {
           <p className="text-xl text-gray-400">
             Perfect datasets for building impressive portfolio projects. Show employers your ability to consume APIs and create stunning dashboards with real-world data.
           </p>
+        </div>
+
+        {/* API Key Management - Minimal Section */}
+        <div className="glass rounded-xl p-4 mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <CodeBracketIcon className="h-5 w-5 text-green-400" />
+              <h2 className="text-lg font-semibold text-white">API Access</h2>
+              <span className="text-xs text-gray-500">25/hour</span>
+            </div>
+          </div>
+          
+          {loadingApiKeys ? (
+            <div className="flex items-center py-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-400 border-t-transparent mr-2"></div>
+              <span className="text-sm text-gray-400">Loading...</span>
+            </div>
+          ) : userApiKeys.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg border border-gray-700/30">
+                <div className="flex items-center space-x-2 flex-1">
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                  <div className="font-mono text-sm text-gray-300 flex-1">
+                    {userApiKeys[0].keyPreview}<span className="text-gray-600">••••••••••••••••••••••••••••••••••••••••</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 ml-3">
+                  <button
+                    onClick={() => {
+                      const storedKey = localStorage.getItem('analysthub_api_key')
+                      if (storedKey) {
+                        navigator.clipboard.writeText(storedKey)
+                        setCopyFeedback('Copied!')
+                        setTimeout(() => setCopyFeedback(null), 2000)
+                      } else {
+                        setCopyFeedback('Not found')
+                        setTimeout(() => setCopyFeedback(null), 2000)
+                      }
+                    }}
+                    className="px-2 py-1 text-xs bg-green-400/10 hover:bg-green-400/20 text-green-400 rounded transition-colors"
+                  >
+                    {copyFeedback || 'Copy'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm('Delete API key?')) {
+                        deleteApiKey(userApiKeys[0].id)
+                      }
+                    }}
+                    className="px-2 py-1 text-xs bg-red-400/10 hover:bg-red-400/20 text-red-400 rounded transition-colors"
+                  >
+                    Del
+                  </button>
+                </div>
+              </div>
+              
+              {actionFeedback && (
+                <div className="p-2 bg-green-400/10 border border-green-400/20 rounded text-xs text-green-400">
+                  {actionFeedback}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-400">
+                Generate an API key to access datasets programmatically
+              </p>
+              
+              <div className="flex items-center space-x-3">
+                {actionFeedback && (
+                  <span className="text-xs text-green-400">{actionFeedback}</span>
+                )}
+                <button
+                  onClick={generateApiKey}
+                  disabled={generatingKey}
+                  className="px-3 py-1.5 text-sm bg-green-400 text-gray-900 rounded hover:bg-green-300 transition-colors font-medium disabled:opacity-50"
+                >
+                  {generatingKey ? 'Generating...' : 'Generate Key'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tab Navigation */}
@@ -237,17 +483,12 @@ export default function DataExportPage() {
 
             {error && (
               <div className="glass rounded-xl p-6 mb-8 border border-red-500/20">
-                <h3 className="text-red-400 font-semibold mb-2">Connection Error</h3>
+                <h3 className="text-red-400 font-semibold mb-2">Unable to Load Data</h3>
                 <p className="text-gray-400 mb-4">{error}</p>
                 <p className="text-sm text-gray-500">
-                  Make sure your Azure SQL database is configured and accessible. Check your environment variables:
+                  This might be a temporary issue. Please try refreshing the page. 
+                  If the problem persists, the datasets may be temporarily unavailable.
                 </p>
-                <ul className="text-sm text-gray-500 mt-2 ml-4">
-                  <li>• AZURE_SQL_SERVER</li>
-                  <li>• AZURE_SQL_DATABASE</li>
-                  <li>• AZURE_SQL_USERNAME</li>
-                  <li>• AZURE_SQL_PASSWORD</li>
-                </ul>
               </div>
             )}
 
@@ -341,10 +582,20 @@ export default function DataExportPage() {
                               <div className="flex gap-3 mt-6">
                                 <button
                                   onClick={() => handleDownload(dataset, 'xlsx')}
-                                  className="flex-1 px-4 py-3 bg-green-400 text-gray-900 rounded-lg hover:bg-green-300 transition-all duration-300 text-sm font-medium flex items-center justify-center group"
+                                  disabled={downloadingDataset === dataset.id}
+                                  className="flex-1 px-4 py-3 bg-green-400 text-gray-900 rounded-lg hover:bg-green-300 transition-all duration-300 text-sm font-medium flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                  <CloudArrowDownIcon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                                  Download Excel
+                                  {downloadingDataset === dataset.id ? (
+                                    <>
+                                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-gray-900 border-t-transparent rounded-full"></div>
+                                      Downloading...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CloudArrowDownIcon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                                      Download Excel
+                                    </>
+                                  )}
                                 </button>
                                 <button
                                   onClick={() => handleApiConnect(dataset)}
@@ -432,10 +683,20 @@ export default function DataExportPage() {
                               <div className="flex gap-2 mt-4">
                                 <button
                                   onClick={() => handleDownload(dataset, 'csv')}
-                                  className="flex-1 px-3 py-2 bg-green-400 text-gray-900 rounded-lg hover:bg-green-300 transition-all duration-300 text-sm font-medium flex items-center justify-center group"
+                                  disabled={downloadingDataset === dataset.id}
+                                  className="flex-1 px-3 py-2 bg-green-400 text-gray-900 rounded-lg hover:bg-green-300 transition-all duration-300 text-sm font-medium flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                  <CloudArrowDownIcon className="h-4 w-4 mr-1 group-hover:scale-110 transition-transform" />
-                                  CSV
+                                  {downloadingDataset === dataset.id ? (
+                                    <>
+                                      <div className="animate-spin h-4 w-4 mr-1 border-2 border-gray-900 border-t-transparent rounded-full"></div>
+                                      Downloading...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CloudArrowDownIcon className="h-4 w-4 mr-1 group-hover:scale-110 transition-transform" />
+                                      CSV
+                                    </>
+                                  )}
                                 </button>
                                 <button
                                   onClick={() => handleApiConnect(dataset)}
@@ -499,15 +760,113 @@ export default function DataExportPage() {
             {/* API Key Generation */}
             <div className="glass rounded-xl p-6">
               <h3 className="text-xl font-semibold mb-4">API Authentication</h3>
-              <p className="text-gray-400 mb-4">
-                Generate your API key to access our datasets programmatically. Keep this key secure and don't share it publicly.
-              </p>
-              <button
-                onClick={generateApiKey}
-                className="btn-primary"
-              >
-                Generate API Key
-              </button>
+              
+              {userApiKeys.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-green-400/10 border border-green-400/20 rounded-lg">
+                    <h4 className="font-medium text-green-400 mb-2">✅ API Key Active</h4>
+                    <p className="text-sm text-gray-300 mb-2">
+                      Your API key is ready to use. Rate limit: 25 requests per hour.
+                    </p>
+                    <div className="bg-gray-900 p-3 rounded font-mono text-sm break-all">
+                      {userApiKeys[0].keyPreview}
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        const storedKey = localStorage.getItem('analysthub_api_key')
+                        if (storedKey) {
+                          navigator.clipboard.writeText(storedKey)
+                          setCopyFeedback('Copied!')
+                          setTimeout(() => setCopyFeedback(null), 2000)
+                        } else {
+                          setCopyFeedback('Key not found')
+                          setTimeout(() => setCopyFeedback(null), 2000)
+                        }
+                      }}
+                      className="px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors text-sm"
+                    >
+                      {copyFeedback || 'Copy Full Key'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm('Delete API key?')) {
+                          deleteApiKey(userApiKeys[0].id)
+                        }
+                      }}
+                      className="px-4 py-2 border border-red-400 text-red-400 rounded-lg hover:bg-red-400/10 transition-colors text-sm"
+                    >
+                      Generate New Key
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-gray-400">
+                    Generate your API key to access datasets programmatically. Rate limit: 25 requests per hour.
+                  </p>
+                  
+                  <div className="p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-lg">
+                    <h4 className="font-medium text-yellow-400 mb-2">🔑 API Key Benefits</h4>
+                    <ul className="text-sm text-gray-300 space-y-1">
+                      <li>• <strong>Higher Rate Limits:</strong> 25 requests/hour vs 10 downloads/hour</li>
+                      <li>• <strong>Query Access:</strong> Filter and query datasets with SQL-like syntax</li>
+                      <li>• <strong>Programmatic Access:</strong> Perfect for dashboards and applications</li>
+                      <li>• <strong>Multiple Formats:</strong> JSON, CSV, and Excel downloads</li>
+                    </ul>
+                  </div>
+                  
+                  <button
+                    onClick={generateApiKey}
+                    disabled={generatingKey}
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {generatingKey ? 'Generating...' : 'Generate API Key'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Rate Limits Information */}
+            <div className="glass rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-4">Rate Limits</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 border border-gray-700 rounded-lg">
+                  <h4 className="font-medium mb-3 text-red-400">🚫 Without API Key</h4>
+                  <ul className="text-sm text-gray-400 space-y-2">
+                    <li>• <strong>Downloads:</strong> 10 per hour</li>
+                    <li>• <strong>API Access:</strong> Not available</li>
+                    <li>• <strong>Queries:</strong> Not available</li>
+                  </ul>
+                  <div className="mt-3 text-xs text-gray-500">
+                    Based on IP address tracking
+                  </div>
+                </div>
+                
+                <div className="p-4 border border-green-400/30 bg-green-400/5 rounded-lg">
+                  <h4 className="font-medium mb-3 text-green-400">✅ With API Key</h4>
+                  <ul className="text-sm text-gray-300 space-y-2">
+                    <li>• <strong>API Requests:</strong> 25 per hour</li>
+                    <li>• <strong>Queries:</strong> Included in API limits</li>
+                    <li>• <strong>Downloads:</strong> Included in API limits</li>
+                  </ul>
+                  <div className="mt-3 text-xs text-green-400">
+                    Perfect for portfolio projects
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-400/10 border border-blue-400/20 rounded-lg">
+                <h4 className="font-medium text-blue-400 mb-2">💡 Best Practices</h4>
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li>• Use API keys for any automated or dashboard applications</li>
+                  <li>• Cache responses when possible to reduce API calls</li>
+                  <li>• Monitor rate limit headers in responses</li>
+                  <li>• Use appropriate formats (JSON for APIs, CSV for analysis)</li>
+                </ul>
+              </div>
             </div>
 
             {/* API Endpoints */}
@@ -523,8 +882,21 @@ export default function DataExportPage() {
                         {endpoint.method}
                       </span>
                       <code className="text-green-400 font-mono">{endpoint.endpoint}</code>
+                      {endpoint.authRequired && (
+                        <span className="ml-3 px-2 py-1 bg-red-400/20 text-red-400 text-xs rounded">
+                          API Key Required
+                        </span>
+                      )}
+                      {endpoint.note && (
+                        <span className="ml-3 px-2 py-1 bg-yellow-400/20 text-yellow-400 text-xs rounded">
+                          Optional Auth
+                        </span>
+                      )}
                     </div>
                     <p className="text-gray-400 mb-3">{endpoint.description}</p>
+                    {endpoint.note && (
+                      <p className="text-sm text-yellow-400 mb-3">{endpoint.note}</p>
+                    )}
                     <div className="bg-gray-900 rounded p-3">
                       <div className="text-xs text-gray-500 mb-1">Example:</div>
                       <code className="text-sm text-gray-300 font-mono break-all">{endpoint.example}</code>
@@ -546,22 +918,30 @@ export default function DataExportPage() {
 {`import requests
 import pandas as pd
 
+# Your API key
+API_KEY = "your_api_key_here"
+headers = {"Authorization": f"Bearer {API_KEY}"}
+
 # Get all available datasets
-response = requests.get("https://analysthub.com/api/datasets")
+response = requests.get("https://analysthub.com/api/datasets", headers=headers)
 datasets = response.json()
 
-# Get e-commerce dataset metadata
-ecom_meta = requests.get("https://analysthub.com/api/datasets/ecom-datamart")
+# Get e-commerce dataset details
+ecom_meta = requests.get(
+    "https://analysthub.com/api/datasets/ecom-datamart", 
+    headers=headers
+)
 print(f"Available tables: {ecom_meta.json()['dataset']['relatedTables']}")
 
-# Download specific table as CSV
+# Download specific table as CSV (API key provides higher rate limits)
 orders_csv = requests.get(
-    "https://analysthub.com/api/datasets/ecom-datamart/download?format=csv&table=ecom_orders"
+    "https://analysthub.com/api/datasets/ecom-datamart/download?format=csv&table=ecom_orders",
+    headers=headers
 )
 with open('ecom_orders.csv', 'w') as f:
     f.write(orders_csv.text)
 
-# Query with filters
+# Query with filters (requires API key)
 query_data = {
     "table": "ecom_customers",
     "filters": {"city": "New York"},
@@ -570,9 +950,14 @@ query_data = {
 }
 result = requests.post(
     "https://analysthub.com/api/datasets/ecom-datamart/query",
-    json=query_data
+    json=query_data,
+    headers=headers
 )
-customers = result.json()['data']`}
+customers = result.json()['data']
+
+# Check rate limits
+remaining = result.headers.get('x-ratelimit-remaining')
+print(f"API calls remaining: {remaining}")`}
                     </pre>
                   </div>
                 </div>
@@ -583,17 +968,27 @@ customers = result.json()['data']`}
                     <pre className="text-sm text-gray-300 overflow-x-auto">
 {`const axios = require('axios');
 
+// Your API key
+const API_KEY = 'your_api_key_here';
+const headers = { 'Authorization': \`Bearer \${API_KEY}\` };
+
 // Fetch all datasets
 async function getDatasets() {
   try {
-    const response = await axios.get('https://analysthub.com/api/datasets');
+    const response = await axios.get(
+      'https://analysthub.com/api/datasets',
+      { headers }
+    );
     console.log('Available datasets:', response.data.datasets);
     
     // Get education dataset details
-    const eduData = await axios.get('https://analysthub.com/api/datasets/education-datamart');
+    const eduData = await axios.get(
+      'https://analysthub.com/api/datasets/education-datamart',
+      { headers }
+    );
     console.log('Education tables:', eduData.data.dataset.relatedTables);
     
-    // Query student data with filters
+    // Query student data with filters (requires API key)
     const studentQuery = {
       table: "education_students",
       filters: { grade_level: "10" },
@@ -602,11 +997,22 @@ async function getDatasets() {
     
     const students = await axios.post(
       'https://analysthub.com/api/datasets/education-datamart/query',
-      studentQuery
+      studentQuery,
+      { headers }
     );
     
+    // Check rate limits
+    const remaining = students.headers['x-ratelimit-remaining'];
+    console.log(\`Query calls remaining: \${remaining}\`);
+    
   } catch (error) {
-    console.error('Error:', error.response?.data || error.message);
+    if (error.response?.status === 401) {
+      console.error('Invalid API key. Please check your authentication.');
+    } else if (error.response?.status === 429) {
+      console.error('Rate limit exceeded:', error.response.data.error);
+    } else {
+      console.error('Error:', error.response?.data || error.message);
+    }
   }
 }
 
@@ -649,29 +1055,6 @@ music_data <- content(music_response, "parsed")
 print(paste("Found", length(music_data$data), "music plays"))`}
                     </pre>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Rate Limits */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">Rate Limits & Usage</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium mb-2 text-green-400">Rate Limits</h4>
-                  <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• 1,000 requests per hour</li>
-                    <li>• 10,000 requests per day</li>
-                    <li>• 5 concurrent connections</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2 text-green-400">Response Formats</h4>
-                  <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• JSON (default)</li>
-                    <li>• CSV (add ?format=csv)</li>
-                    <li>• Excel (add ?format=xlsx)</li>
-                  </ul>
                 </div>
               </div>
             </div>

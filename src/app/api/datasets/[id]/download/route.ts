@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ConnectionPool } from 'mssql'
 import * as XLSX from 'xlsx'
+import { extractApiKey, validateApiKey } from '@/lib/api-keys'
+import { getClientIP, downloadLimiter, downloadBurstLimiter, apiGeneralLimiter, createRateLimitHeaders } from '@/lib/rate-limit'
 
 // Azure SQL connection configuration
 const azureConfig = {
@@ -83,6 +85,95 @@ export async function GET(
       )
     }
 
+    // Check if this is an API request (has API key) or direct download
+    const apiKey = extractApiKey(request)
+    const clientIP = getClientIP(request)
+    
+    if (apiKey) {
+      // API-based download - validate API key and use API rate limits
+      const validatedKey = validateApiKey(apiKey)
+      if (!validatedKey) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Invalid or inactive API key. Please check your API key or generate a new one.' 
+          },
+          { status: 401 }
+        )
+      }
+
+      // Apply API rate limiting (more generous)
+      const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey)
+      if (!rateLimitResult.allowed) {
+        const headers = createRateLimitHeaders(rateLimitResult)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'API rate limit exceeded. Please wait before making more requests.',
+            retryAfter: rateLimitResult.retryAfter,
+            limits: {
+              type: 'api',
+              maxRequests: 1000,
+              windowMs: 3600000 // 1 hour
+            }
+          },
+          { 
+            status: 429,
+            headers 
+          }
+        )
+      }
+    } else {
+      // Direct download - apply strict download rate limits
+      // Check both burst and hourly limits
+      const burstLimitResult = await downloadBurstLimiter.checkLimit(clientIP)
+      const hourlyLimitResult = await downloadLimiter.checkLimit(clientIP)
+      
+      if (!burstLimitResult.allowed) {
+        const headers = createRateLimitHeaders(burstLimitResult)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Download rate limit exceeded. You can only download 3 files every 15 minutes. Please wait or use the API for more frequent access.',
+            retryAfter: burstLimitResult.retryAfter,
+            limits: {
+              type: 'download_burst',
+              maxRequests: 3,
+              windowMs: 900000, // 15 minutes
+              remaining: burstLimitResult.remaining
+            },
+            suggestion: 'For frequent data access, generate an API key which has higher rate limits.'
+          },
+          { 
+            status: 429,
+            headers 
+          }
+        )
+      }
+      
+      if (!hourlyLimitResult.allowed) {
+        const headers = createRateLimitHeaders(hourlyLimitResult)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Daily download limit exceeded. You can only download 10 files per hour. Please wait or use the API for more frequent access.',
+            retryAfter: hourlyLimitResult.retryAfter,
+            limits: {
+              type: 'download_hourly',
+              maxRequests: 10,
+              windowMs: 3600000, // 1 hour
+              remaining: hourlyLimitResult.remaining
+            },
+            suggestion: 'For frequent data access, generate an API key which has higher rate limits.'
+          },
+          { 
+            status: 429,
+            headers 
+          }
+        )
+      }
+    }
+
     // Connect to Azure SQL Database
     const pool = new ConnectionPool(azureConfig)
     await pool.connect()
@@ -118,12 +209,21 @@ export async function GET(
       // Generate Excel buffer
       const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
       
-      return new NextResponse(excelBuffer, {
-        headers: {
-          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'Content-Disposition': `attachment; filename="${id}-datamart.xlsx"`
-        }
+      const headers = new Headers({
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="${id}-datamart.xlsx"`
       })
+
+      // Add rate limit headers
+      if (apiKey) {
+        const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey)
+        const rateLimitHeaders = createRateLimitHeaders(rateLimitResult)
+        rateLimitHeaders.forEach((value, key) => {
+          headers.set(key, value)
+        })
+      }
+      
+      return new NextResponse(excelBuffer, { headers })
     }
     
     // Handle single table download (CSV or JSON)
@@ -146,12 +246,12 @@ export async function GET(
     if (format === 'csv') {
       // Convert to CSV
       if (data.length === 0) {
-        return new NextResponse('No data available', {
-          headers: {
-            'Content-Type': 'text/csv',
-            'Content-Disposition': `attachment; filename="${id}-${tableName}.csv"`
-          }
+        const headers = new Headers({
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="${id}-${tableName}.csv"`
         })
+
+        return new NextResponse('No data available', { headers })
       }
 
       const headers = Object.keys(data[0]).join(',')
@@ -171,16 +271,25 @@ export async function GET(
       
       const csv = [headers, ...rows].join('\n')
       
-      return new NextResponse(csv, {
-        headers: {
-          'Content-Type': 'text/csv',
-          'Content-Disposition': `attachment; filename="${id}-${tableName}.csv"`
-        }
+      const responseHeaders = new Headers({
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="${id}-${tableName}.csv"`
       })
+
+      // Add rate limit headers
+      if (apiKey) {
+        const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey)
+        const rateLimitHeaders = createRateLimitHeaders(rateLimitResult)
+        rateLimitHeaders.forEach((value, key) => {
+          responseHeaders.set(key, value)
+        })
+      }
+      
+      return new NextResponse(csv, { headers: responseHeaders })
     }
 
     // Default to JSON
-    return NextResponse.json({
+    const responseData = {
       success: true,
       dataset: id,
       type: datasetInfo.type,
@@ -190,8 +299,25 @@ export async function GET(
       data,
       note: datasetInfo.type === 'datamart' 
         ? (table ? `Data from specific table: ${tableName}. Use format=xlsx to download entire datamart as Excel with multiple sheets.` : `Data from main table: ${tableName}. Use ?table=<table_name> for specific tables or format=xlsx for entire datamart.`)
-        : `Data from table: ${tableName}`
-    })
+        : `Data from table: ${tableName}`,
+      rateLimit: apiKey ? {
+        type: 'api',
+        remaining: (await apiGeneralLimiter.checkLimit(apiKey)).remaining
+      } : {
+        type: 'download',
+        burstRemaining: (await downloadBurstLimiter.checkLimit(clientIP)).remaining,
+        hourlyRemaining: (await downloadLimiter.checkLimit(clientIP)).remaining
+      }
+    }
+
+    // Add rate limit headers for JSON responses
+    let responseHeaders = new Headers()
+    if (apiKey) {
+      const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey)
+      responseHeaders = createRateLimitHeaders(rateLimitResult)
+    }
+
+    return NextResponse.json(responseData, { headers: responseHeaders })
 
   } catch (error) {
     console.error('Error downloading dataset:', error)

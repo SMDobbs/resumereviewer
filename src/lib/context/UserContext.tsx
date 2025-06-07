@@ -32,7 +32,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // Check for existing session on mount
+  // Simple auth check on mount
   useEffect(() => {
     checkAuth()
   }, [])
@@ -46,15 +46,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       if (response.ok) {
         const data = await response.json()
-        if (data.user) {
-          setUser(data.user)
-        } else {
-          setUser(null)
-        }
-      } else if (response.status === 401) {
-        setUser(null)
+        setUser(data.user || null)
       } else {
-        console.warn('Auth check failed with status:', response.status)
         setUser(null)
       }
     } catch (error) {
@@ -66,31 +59,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      })
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email, password }),
+    })
 
-      const data = await response.json()
+    const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed')
-      }
-
-      // Set user data from response
-      setUser(data.user)
-      
-      // Redirect to dashboard
-      router.push('/dashboard')
-    } catch (error) {
-      console.error('Login error in UserContext:', error)
-      throw error // Re-throw so the component can handle it
+    if (!response.ok) {
+      throw new Error(data.error || 'Login failed')
     }
+
+    setUser(data.user)
+    router.push('/dashboard')
   }
 
   const logout = async () => {
@@ -104,7 +89,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
     
     setUser(null)
-    router.push('/')
+    router.push('/login')
   }
 
   const refreshUser = async () => {
@@ -116,11 +101,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       if (response.ok) {
         const data = await response.json()
-        if (data.user) {
-          setUser(data.user)
-        } else {
-          setUser(null)
-        }
+        setUser(data.user || null)
       } else {
         setUser(null)
       }

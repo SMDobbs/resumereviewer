@@ -36,31 +36,20 @@ const Navigation = () => {
     }
   }
 
-  // Check if we're on the landing page and user is not signed in
-  const isLandingPage = pathname === '/' && !user
+  // Check if we're on the landing page
+  const isLandingPage = pathname === '/'
 
-  const publicNavItems = isLandingPage ? [
+  // Navigation items for landing page (public)
+  const landingNavItems = [
     { scrollTo: 'home', label: 'Home' },
     { scrollTo: 'about', label: 'About' },
     { scrollTo: 'features', label: 'Features' },
     { scrollTo: 'pricing', label: 'Pricing' },
     { scrollTo: 'team', label: 'Team' },
-  ] : [
-    { href: '/', label: 'Home' },
-    { 
-      label: 'Learn',
-      isDropdown: true,
-      dropdownItems: [
-        { href: '/articles', label: 'Articles', icon: DocumentTextIcon, description: 'Weekly analytics insights' },
-        { href: '/guides', label: 'Premium Guides', icon: BookOpenIcon, description: 'In-depth career guides' },
-        { href: '/resources', label: 'Free Resources', icon: FolderIcon, description: 'Templates & tools' },
-      ]
-    },
-    { href: '/tools', label: 'Tools', icon: SparklesIcon },
-    { href: '/coaching', label: 'Coaching', icon: UserGroupIcon },
   ]
 
-  const protectedNavItems = [
+  // Navigation items for authenticated users
+  const authenticatedNavItems = [
     { href: '/dashboard', label: 'Dashboard' },
     { 
       label: 'Learn',
@@ -75,7 +64,7 @@ const Navigation = () => {
     { href: '/coaching', label: 'Coaching', icon: UserGroupIcon },
   ]
 
-  const navItems = user ? protectedNavItems : publicNavItems
+  const navItems = isLandingPage ? landingNavItems : authenticatedNavItems
 
   const isActive = (href: string) => pathname === href
 
@@ -106,7 +95,7 @@ const Navigation = () => {
   const handleMouseLeave = () => {
     dropdownTimeoutRef.current = setTimeout(() => {
       setActiveDropdown(null)
-    }, 100) // Small delay to prevent flickering
+    }, 100)
   }
 
   const closeDropdown = () => {
@@ -210,11 +199,10 @@ const Navigation = () => {
               </div>
             ))}
 
-            {/* Auth Buttons */}
+            {/* Auth Buttons / User Menu */}
             <div className="flex items-center space-x-3 ml-6">
-              {loading ? (
-                <div className="w-9 h-9 bg-gray-800 animate-pulse rounded-full"></div>
-              ) : !user ? (
+              {isLandingPage ? (
+                // Landing page - show login/signup buttons
                 <>
                   <button 
                     onClick={handleSignIn}
@@ -229,7 +217,9 @@ const Navigation = () => {
                     Get Started
                   </button>
                 </>
-              ) : (
+              ) : loading ? (
+                <div className="w-9 h-9 bg-gray-800 animate-pulse rounded-full"></div>
+              ) : user ? (
                 <div className="flex items-center space-x-4">
                   {/* User Dropdown */}
                   <div 
@@ -282,27 +272,27 @@ const Navigation = () => {
                     )}
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-4">
-            {/* Mobile Auth Buttons */}
-            {loading ? (
-              <div className="w-8 h-8 bg-gray-800 animate-pulse rounded-full"></div>
-            ) : !user ? (
+            {/* Mobile Auth Buttons / User Avatar */}
+            {isLandingPage ? (
               <button 
                 onClick={handleSignIn}
                 className="text-green-400 text-sm font-medium"
               >
                 Sign In
               </button>
-            ) : (
+            ) : loading ? (
+              <div className="w-8 h-8 bg-gray-800 animate-pulse rounded-full"></div>
+            ) : user ? (
               <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center">
                 <span className="text-green-400 text-sm font-medium">{getUserInitials()}</span>
               </div>
-            )}
+            ) : null}
             
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -389,51 +379,51 @@ const Navigation = () => {
               ))}
               
               {/* Mobile Auth Section */}
-              {!loading && (
+              {isLandingPage ? (
                 <div className="mt-6 pt-4 border-t border-gray-800/50">
-                  {!user ? (
-                    <div className="space-y-3">
-                      <button 
-                        onClick={() => {
-                          handleSignIn()
-                          setIsOpen(false)
-                        }}
-                        className="w-full px-3 py-2 text-left rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
-                      >
-                        Sign In
-                      </button>
-                      <button 
-                        onClick={() => {
-                          handleSignUp()
-                          setIsOpen(false)
-                        }}
-                        className="w-full btn-primary py-3 text-center font-semibold"
-                      >
-                        Get Started
-                      </button>
+                  <div className="space-y-3">
+                    <button 
+                      onClick={() => {
+                        handleSignIn()
+                        setIsOpen(false)
+                      }}
+                      className="w-full px-3 py-2 text-left rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
+                    >
+                      Sign In
+                    </button>
+                    <button 
+                      onClick={() => {
+                        handleSignUp()
+                        setIsOpen(false)
+                      }}
+                      className="w-full btn-primary py-3 text-center font-semibold"
+                    >
+                      Get Started
+                    </button>
+                  </div>
+                </div>
+              ) : user && (
+                <div className="mt-6 pt-4 border-t border-gray-800/50">
+                  <div className="space-y-3">
+                    <div className="px-3 py-2 text-sm text-gray-400">
+                      Signed in as <span className="text-green-400">{user.firstName}</span>
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="px-3 py-2 text-sm text-gray-400">
-                        Signed in as <span className="text-green-400">{user.firstName}</span>
-                      </div>
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center px-3 py-2 rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <UserIcon className="h-5 w-5 mr-3 text-green-400" />
-                        Dashboard
-                      </Link>
-                      <button 
-                        onClick={handleSignOut}
-                        className="w-full flex items-center px-3 py-2 rounded-lg text-red-400 hover:bg-red-400/5 transition-colors"
-                      >
-                        <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
-                        Sign Out
-                      </button>
-                    </div>
-                  )}
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center px-3 py-2 rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <UserIcon className="h-5 w-5 mr-3 text-green-400" />
+                      Dashboard
+                    </Link>
+                    <button 
+                      onClick={handleSignOut}
+                      className="w-full flex items-center px-3 py-2 rounded-lg text-red-400 hover:bg-red-400/5 transition-colors"
+                    >
+                      <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

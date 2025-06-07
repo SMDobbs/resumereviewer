@@ -10,6 +10,7 @@ import {
   SparklesIcon,
   ArrowRightIcon
 } from '@heroicons/react/24/outline'
+import { PagePaywall } from '@/components/Paywall'
 
 interface ResumeAnalysis {
   overallScore: number
@@ -132,8 +133,8 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
   }
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-emerald-400'
-    if (score >= 6) return 'text-amber-400'
+    if (score >= 8) return 'text-green-400'
+    if (score >= 6) return 'text-yellow-400'
     return 'text-red-400'
   }
 
@@ -142,22 +143,26 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
   }
 
   const getProgressColor = (score: number) => {
-    if (score >= 8) return 'bg-emerald-400'
-    if (score >= 6) return 'bg-amber-400'
+    if (score >= 8) return 'bg-green-400'
+    if (score >= 6) return 'bg-yellow-400'
     return 'bg-red-400'
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+    <PagePaywall
+      title="AI Resume Reviewer"
+      description="Get instant, expert feedback on your resume with our AI-powered tool trained on successful analytics resumes."
+      feature="Professional resume analysis with ATS optimization and industry-specific feedback"
+    >
       {/* Hero Section */}
-      <div className="relative pt-20 pb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-blue-500/10"></div>
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-full mb-6">
-            <SparklesIcon className="h-4 w-4 text-emerald-400 mr-2" />
-            <span className="text-sm font-medium text-emerald-400">Powered by GPT-4</span>
+      <div className="relative pb-16">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 via-transparent to-green-400/5"></div>
+        <div className="relative max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center px-4 py-2 bg-green-400/20 border border-green-400/30 rounded-full mb-6">
+            <SparklesIcon className="h-4 w-4 text-green-400 mr-2" />
+            <span className="text-sm font-medium text-green-400">Powered by GPT-4</span>
           </div>
-          <h1 className="text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+          <h1 className="text-5xl lg:text-6xl font-bold mb-6 gradient-text">
             AI Resume Reviewer
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
@@ -166,25 +171,59 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="pb-20">
         {!analysis ? (
           /* Input Form */
           <div className="max-w-2xl mx-auto">
+            {/* Progress Steps */}
+            <div className="flex items-center justify-center mb-8">
+              <div className="flex items-center space-x-4">
+                <div className={`flex items-center ${file ? 'text-green-400' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                    file ? 'bg-green-400 border-green-400 text-gray-900' : 'border-gray-400'
+                  }`}>
+                    {file ? <CheckCircleIcon className="h-5 w-5" /> : <span className="text-sm font-bold">1</span>}
+                  </div>
+                  <span className="ml-2 font-medium">Upload Resume</span>
+                </div>
+                <div className={`w-8 h-0.5 ${file ? 'bg-green-400' : 'bg-gray-600'}`}></div>
+                <div className={`flex items-center ${jobCriteria.trim() ? 'text-green-400' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                    jobCriteria.trim() ? 'bg-green-400 border-green-400 text-gray-900' : 'border-gray-400'
+                  }`}>
+                    {jobCriteria.trim() ? <CheckCircleIcon className="h-5 w-5" /> : <span className="text-sm font-bold">2</span>}
+                  </div>
+                  <span className="ml-2 font-medium">Describe Role</span>
+                </div>
+                <div className={`w-8 h-0.5 ${(file && jobCriteria.trim()) ? 'bg-green-400' : 'bg-gray-600'}`}></div>
+                <div className={`flex items-center ${(file && jobCriteria.trim()) ? 'text-green-400' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                    (file && jobCriteria.trim()) ? 'border-green-400' : 'border-gray-400'
+                  }`}>
+                    <span className="text-sm font-bold">3</span>
+                  </div>
+                  <span className="ml-2 font-medium">Get Analysis</span>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* File Upload */}
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+              <div className="glass rounded-2xl p-8 card-hover">
                 <h3 className="text-xl font-semibold mb-6 flex items-center text-white">
-                  <DocumentTextIcon className="h-6 w-6 text-emerald-400 mr-3" />
+                  <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-sm font-bold text-gray-900">1</span>
+                  </div>
                   Upload Your Resume
                 </h3>
                 
                 <div
                   className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${
                     dragActive 
-                      ? 'border-emerald-400 bg-emerald-400/10 scale-[1.02]' 
+                      ? 'border-green-400 bg-green-400/5 scale-[1.02]' 
                       : file 
-                        ? 'border-emerald-400 bg-emerald-400/5'
-                        : 'border-gray-600 hover:border-gray-500 hover:bg-white/5'
+                        ? 'border-green-400 bg-green-400/5'
+                        : 'border-gray-700 hover:border-gray-600 hover:bg-gray-900/50'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -200,8 +239,8 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
                   
                   {file ? (
                     <div className="flex flex-col items-center">
-                      <CheckCircleIcon className="h-16 w-16 text-emerald-400 mb-4" />
-                      <p className="text-xl font-semibold text-emerald-400 mb-2">{file.name}</p>
+                      <CheckCircleIcon className="h-16 w-16 text-green-400 mb-4" />
+                      <p className="text-xl font-semibold text-green-400 mb-2">{file.name}</p>
                       <p className="text-gray-400">Click to change file</p>
                     </div>
                   ) : (
@@ -209,7 +248,7 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
                       <CloudArrowUpIcon className="h-16 w-16 text-gray-400 mx-auto mb-6" />
                       <p className="text-2xl font-semibold mb-2 text-white">Drop your resume here</p>
                       <p className="text-gray-400 mb-4">or click to browse files</p>
-                      <div className="inline-flex items-center px-4 py-2 bg-gray-800 rounded-lg">
+                      <div className="inline-flex items-center px-4 py-2 bg-gray-800/80 rounded-lg border border-gray-700">
                         <span className="text-sm text-gray-300">PDF, DOCX, DOC, or TXT files</span>
                       </div>
                     </div>
@@ -218,25 +257,44 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
               </div>
 
               {/* Job Description */}
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+              <div className={`glass rounded-2xl p-8 card-hover relative ${!file ? 'opacity-60 pointer-events-none' : ''}`}>
+                {!file && (
+                  <div className="absolute inset-0 bg-gray-900/50 rounded-2xl flex items-center justify-center">
+                    <p className="text-gray-400 font-medium">Complete step 1 first</p>
+                  </div>
+                )}
                 <h3 className="text-xl font-semibold mb-6 flex items-center text-white">
-                  <SparklesIcon className="h-6 w-6 text-emerald-400 mr-3" />
-                  Target Role Description
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                    jobCriteria.trim() ? 'bg-green-400 text-gray-900' : 'bg-gray-600 text-white'
+                  }`}>
+                    <span className="text-sm font-bold">2</span>
+                  </div>
+                  Describe Your Target Role
                 </h3>
-                <textarea
-                  value={jobCriteria}
-                  onChange={(e) => setJobCriteria(e.target.value)}
-                  placeholder="Describe the role you're targeting or paste the job description here..."
-                  className="w-full h-40 px-6 py-4 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400 resize-none text-white placeholder-gray-500 text-lg"
-                  required
-                />
+                <div className="space-y-4">
+                  <p className="text-gray-400 text-sm">
+                    Help us provide better feedback by describing the specific role you're targeting.
+                  </p>
+                  <textarea
+                    value={jobCriteria}
+                    onChange={(e) => setJobCriteria(e.target.value)}
+                    placeholder="Example: I'm applying for a Data Analyst role at a tech startup. The job requires SQL, Python, and data visualization skills. They want someone who can work with large datasets and create dashboards for stakeholders..."
+                    className="w-full h-40 px-6 py-4 bg-gray-900/70 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400 resize-none text-white placeholder-gray-500 text-lg transition-all"
+                    required
+                    disabled={!file}
+                  />
+                  <div className="flex items-center text-sm text-gray-500">
+                    <SparklesIcon className="h-4 w-4 mr-1" />
+                    <span>The more specific you are, the better our analysis will be</span>
+                  </div>
+                </div>
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isAnalyzing || !file || !jobCriteria.trim()}
-                className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-semibold py-6 px-8 rounded-2xl text-xl transition-all duration-300 disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl"
+                className="btn-primary w-full py-6 px-8 rounded-2xl text-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? (
                   <div className="flex items-center justify-center">
@@ -252,7 +310,7 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
               </button>
 
               {error && (
-                <div className="flex items-center p-6 bg-red-900/30 border border-red-500/30 rounded-2xl backdrop-blur-xl">
+                <div className="flex items-center p-6 bg-red-900/20 border border-red-400/30 rounded-2xl">
                   <ExclamationTriangleIcon className="h-6 w-6 text-red-400 mr-3" />
                   <p className="text-red-400 text-lg">{error}</p>
                 </div>
@@ -264,8 +322,8 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Overall Score */}
             <div className="lg:col-span-3">
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
-                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-400/30 mb-6">
+              <div className="glass rounded-2xl p-8 text-center card-hover">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-green-400/20 to-green-600/20 border-2 border-green-400/40 mb-6">
                   <span className={`text-4xl font-bold ${getScoreColor(analysis.overallScore)}`}>
                     {analysis.overallScore}
                   </span>
@@ -276,7 +334,7 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
             </div>
 
             {/* Detailed Scores */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+            <div className="glass rounded-2xl p-8 card-hover">
               <h3 className="text-xl font-semibold mb-6 text-white">Performance Breakdown</h3>
               <div className="space-y-6">
                 <div>
@@ -286,9 +344,9 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
                       {analysis.contentScore}/10
                     </span>
                   </div>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-3">
                     <div 
-                      className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(analysis.contentScore)}`}
+                      className={`h-3 rounded-full transition-all duration-1000 ${getProgressColor(analysis.contentScore)}`}
                       style={{ width: getProgressWidth(analysis.contentScore) }}
                     ></div>
                   </div>
@@ -300,9 +358,9 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
                       {analysis.formattingScore}/10
                     </span>
                   </div>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-3">
                     <div 
-                      className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(analysis.formattingScore)}`}
+                      className={`h-3 rounded-full transition-all duration-1000 ${getProgressColor(analysis.formattingScore)}`}
                       style={{ width: getProgressWidth(analysis.formattingScore) }}
                     ></div>
                   </div>
@@ -314,9 +372,9 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
                       {analysis.skillsScore}/10
                     </span>
                   </div>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-3">
                     <div 
-                      className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(analysis.skillsScore)}`}
+                      className={`h-3 rounded-full transition-all duration-1000 ${getProgressColor(analysis.skillsScore)}`}
                       style={{ width: getProgressWidth(analysis.skillsScore) }}
                     ></div>
                   </div>
@@ -328,9 +386,9 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
                       {analysis.analyticsExperienceScore}/10
                     </span>
                   </div>
-                  <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div className="w-full bg-gray-800 rounded-full h-3">
                     <div 
-                      className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(analysis.analyticsExperienceScore)}`}
+                      className={`h-3 rounded-full transition-all duration-1000 ${getProgressColor(analysis.analyticsExperienceScore)}`}
                       style={{ width: getProgressWidth(analysis.analyticsExperienceScore) }}
                     ></div>
                   </div>
@@ -339,15 +397,15 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
             </div>
 
             {/* Strengths */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-              <h3 className="text-xl font-semibold mb-6 text-emerald-400 flex items-center">
+            <div className="glass rounded-2xl p-8 card-hover">
+              <h3 className="text-xl font-semibold mb-6 text-green-400 flex items-center">
                 <CheckCircleIcon className="h-6 w-6 mr-2" />
                 Strengths
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {analysis.strengths.map((strength, index) => (
-                  <li key={index} className="flex items-start">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                  <li key={index} className="flex items-start p-3 bg-green-400/5 rounded-lg border border-green-400/20">
+                    <div className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <span className="text-gray-300">{strength}</span>
                   </li>
                 ))}
@@ -355,15 +413,15 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
             </div>
 
             {/* Areas for Improvement */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-              <h3 className="text-xl font-semibold mb-6 text-amber-400 flex items-center">
+            <div className="glass rounded-2xl p-8 card-hover">
+              <h3 className="text-xl font-semibold mb-6 text-yellow-400 flex items-center">
                 <ExclamationTriangleIcon className="h-6 w-6 mr-2" />
                 Areas for Improvement
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {analysis.weaknesses.map((weakness, index) => (
-                  <li key={index} className="flex items-start">
-                    <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                  <li key={index} className="flex items-start p-3 bg-yellow-400/5 rounded-lg border border-yellow-400/20">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <span className="text-gray-300">{weakness}</span>
                   </li>
                 ))}
@@ -371,15 +429,15 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
             </div>
 
             {/* Recommendations */}
-            <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-              <h3 className="text-xl font-semibold mb-6 text-blue-400 flex items-center">
+            <div className="lg:col-span-2 glass rounded-2xl p-8 card-hover">
+              <h3 className="text-xl font-semibold mb-6 text-green-400 flex items-center">
                 <LightBulbIcon className="h-6 w-6 mr-2" />
                 Actionable Recommendations
               </h3>
               <ul className="space-y-4">
                 {analysis.recommendations.map((recommendation, index) => (
-                  <li key={index} className="flex items-start p-4 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                    <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center mr-4 mt-0.5 flex-shrink-0">
+                  <li key={index} className="flex items-start p-4 bg-green-400/5 rounded-xl border border-green-400/20">
+                    <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center mr-4 mt-0.5 flex-shrink-0">
                       <span className="text-xs font-bold text-gray-900">{index + 1}</span>
                     </div>
                     <span className="text-gray-300">{recommendation}</span>
@@ -389,9 +447,11 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
             </div>
 
             {/* ATS Optimization */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-              <h3 className="text-xl font-semibold mb-6 text-purple-400">ATS & Keywords</h3>
-              <p className="text-gray-300 leading-relaxed">{analysis.keywordOptimization}</p>
+            <div className="glass rounded-2xl p-8 card-hover">
+              <h3 className="text-xl font-semibold mb-6 text-green-400">ATS & Keywords</h3>
+              <div className="p-4 bg-green-400/5 rounded-lg border border-green-400/20">
+                <p className="text-gray-300 leading-relaxed">{analysis.keywordOptimization}</p>
+              </div>
             </div>
 
             {/* Try Again Button */}
@@ -403,7 +463,7 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
                   setJobCriteria('')
                   setError('')
                 }}
-                className="px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white rounded-xl transition-colors text-lg font-medium"
+                className="btn-secondary px-8 py-4 text-lg font-medium"
               >
                 Analyze Another Resume
               </button>
@@ -411,6 +471,6 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
           </div>
         )}
       </div>
-    </div>
+    </PagePaywall>
   )
 } 

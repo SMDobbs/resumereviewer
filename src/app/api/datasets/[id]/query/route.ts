@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ConnectionPool } from 'mssql'
+import { extractApiKey, validateApiKey } from '@/lib/api-keys'
+import { apiQueryLimiter, createRateLimitHeaders } from '@/lib/rate-limit'
 
 // Azure SQL connection configuration
 const azureConfig = {
@@ -68,15 +70,53 @@ export async function POST(
 ) {
   try {
     const { id } = await params
-    const body = await request.json()
-    const { 
-      filters = {}, 
-      limit = 1000, 
-      offset = 0, 
-      orderBy, 
-      groupBy,
-      table // Allow specifying which table to query
-    } = body
+    
+    // Extract and validate API key - queries REQUIRE API keys
+    const apiKey = extractApiKey(request)
+    if (!apiKey) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'API key required for querying datasets. Include your API key in the Authorization header as "Bearer your_api_key" or in the X-API-Key header.',
+          hint: 'Generate an API key at /tools/data-export by clicking "Generate API Key"'
+        },
+        { status: 401 }
+      )
+    }
+
+    const validatedKey = validateApiKey(apiKey)
+    if (!validatedKey) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid or inactive API key. Please check your API key or generate a new one.' 
+        },
+        { status: 401 }
+      )
+    }
+
+    // Apply query-specific rate limiting
+    const rateLimitResult = await apiQueryLimiter.checkLimit(apiKey)
+    if (!rateLimitResult.allowed) {
+      const headers = createRateLimitHeaders(rateLimitResult)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Query rate limit exceeded. Please wait before making more queries.',
+          retryAfter: rateLimitResult.retryAfter,
+          limits: {
+            type: 'api_query',
+            maxRequests: 500,
+            windowMs: 3600000, // 1 hour
+            remaining: rateLimitResult.remaining
+          }
+        },
+        { 
+          status: 429,
+          headers 
+        }
+      )
+    }
     
     // Get dataset info
     const datasetInfo = datasetTableMap[id]
@@ -87,10 +127,37 @@ export async function POST(
       )
     }
 
+    // Parse request body
+    const body = await request.json()
+    const { 
+      table, 
+      filters = {}, 
+      orderBy, 
+      groupBy, 
+      limit = 1000, 
+      offset = 0 
+    } = body
+
+    // Validate limit to prevent abuse
+    if (limit > 10000) {
+      return NextResponse.json(
+        { success: false, error: 'Limit cannot exceed 10,000 rows per query' },
+        { status: 400 }
+      )
+    }
+
     // Determine which table to query
     let tableName: string
     if (table && datasetInfo.relatedTables.includes(table)) {
       tableName = table
+    } else if (table) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Table '${table}' not found in dataset '${id}'. Available tables: ${datasetInfo.relatedTables.join(', ')}` 
+        },
+        { status: 400 }
+      )
     } else {
       tableName = datasetInfo.mainTable
     }
@@ -99,33 +166,38 @@ export async function POST(
     const pool = new ConnectionPool(azureConfig)
     await pool.connect()
 
-    // Build query dynamically with SQL injection protection
+    // Build the query dynamically
     let query = `SELECT TOP ${limit} * FROM [${tableName}]`
     const conditions: string[] = []
-    
-    // Add filters with basic SQL injection protection
-    Object.entries(filters).forEach(([column, value]) => {
-      // Basic column name validation (only allow alphanumeric and underscore)
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
-        throw new Error(`Invalid column name: ${column}`)
+
+    // Add filters
+    for (const [key, value] of Object.entries(filters)) {
+      // Validate column name to prevent SQL injection
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+        throw new Error(`Invalid column name: ${key}`)
       }
-      
-      if (typeof value === 'string') {
-        // Escape single quotes in string values
-        const escapedValue = value.replace(/'/g, "''")
-        conditions.push(`[${column}] LIKE '%${escapedValue}%'`)
-      } else if (typeof value === 'number') {
-        conditions.push(`[${column}] = ${value}`)
-      } else if (Array.isArray(value)) {
-        const values = value.map(v => {
-          if (typeof v === 'string') {
-            return `'${v.replace(/'/g, "''")}'`
-          }
-          return v
-        }).join(',')
-        conditions.push(`[${column}] IN (${values})`)
+
+      if (value !== null && value !== undefined) {
+        if (typeof value === 'string') {
+          // Escape single quotes in string values
+          const escapedValue = value.replace(/'/g, "''")
+          conditions.push(`[${key}] = '${escapedValue}'`)
+        } else if (typeof value === 'number') {
+          conditions.push(`[${key}] = ${value}`)
+        } else if (typeof value === 'boolean') {
+          conditions.push(`[${key}] = ${value ? 1 : 0}`)
+        } else if (Array.isArray(value)) {
+          // Handle IN clause for arrays
+          const arrayValues = value.map(v => {
+            if (typeof v === 'string') {
+              return `'${v.replace(/'/g, "''")}'`
+            }
+            return v
+          }).join(', ')
+          conditions.push(`[${key}] IN (${arrayValues})`)
+        }
       }
-    })
+    }
 
     if (conditions.length > 0) {
       query += ` WHERE ${conditions.join(' AND ')}`
@@ -168,6 +240,9 @@ export async function POST(
 
     const data = result.recordset
 
+    // Add rate limit headers to response
+    const headers = createRateLimitHeaders(rateLimitResult)
+
     return NextResponse.json({
       success: true,
       dataset: id,
@@ -177,10 +252,18 @@ export async function POST(
       query: query,
       count: data.length,
       data,
+      usage: {
+        apiKey: validatedKey.name,
+        requestCount: validatedKey.usageCount,
+        queryRateLimit: {
+          remaining: rateLimitResult.remaining,
+          resetTime: rateLimitResult.resetTime
+        }
+      },
       note: datasetInfo.type === 'datamart' 
         ? (table ? `Queried specific table: ${tableName} from ${datasetInfo.relatedTables.length}-table datamart` : `Queried main table: ${tableName} from ${datasetInfo.relatedTables.length}-table datamart. Use 'table' parameter to query other tables.`)
         : `Queried standalone table: ${tableName}`
-    })
+    }, { headers })
 
   } catch (error) {
     console.error('Error querying dataset:', error)

@@ -81,10 +81,6 @@ export default function ArticlesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/" className="inline-flex items-center text-gray-400 hover:text-green-400 mb-4">
-            <ArrowLeftIcon className="h-4 w-4 mr-2" />
-            Back to Home
-          </Link>
           <h1 className="text-4xl font-bold mb-4">
             <span className="gradient-text">Awesome Analytics</span> Series
           </h1>

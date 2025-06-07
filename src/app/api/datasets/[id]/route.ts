@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ConnectionPool } from 'mssql'
+import { extractApiKey, validateApiKey } from '@/lib/api-keys'
+import { apiGeneralLimiter, createRateLimitHeaders } from '@/lib/rate-limit'
 
 // Azure SQL connection configuration
 const azureConfig = {
@@ -117,6 +119,52 @@ export async function GET(
   try {
     const { id } = await params
     
+    // Extract and validate API key
+    const apiKey = extractApiKey(request)
+    if (!apiKey) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'API key required. Include your API key in the Authorization header as "Bearer your_api_key" or in the X-API-Key header.',
+          hint: 'Generate an API key at /tools/data-export by clicking "Generate API Key"'
+        },
+        { status: 401 }
+      )
+    }
+
+    const validatedKey = validateApiKey(apiKey)
+    if (!validatedKey) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid or inactive API key. Please check your API key or generate a new one.' 
+        },
+        { status: 401 }
+      )
+    }
+
+    // Apply rate limiting
+    const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey)
+    if (!rateLimitResult.allowed) {
+      const headers = createRateLimitHeaders(rateLimitResult)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Rate limit exceeded. Please wait before making more requests.',
+          retryAfter: rateLimitResult.retryAfter,
+          limits: {
+            maxRequests: 1000,
+            windowMs: 3600000, // 1 hour
+            remaining: rateLimitResult.remaining
+          }
+        },
+        { 
+          status: 429,
+          headers 
+        }
+      )
+    }
+    
     // Get dataset info
     const dataset = datasetInfo[id]
     if (!dataset) {
@@ -130,67 +178,78 @@ export async function GET(
     const pool = new ConnectionPool(azureConfig)
     await pool.connect()
 
-    // Get metadata for all related tables
-    const tableMetadata = await Promise.all(
-      dataset.relatedTables.map(async (tableName: string) => {
-        try {
-          // Get row count
-          const countResult = await pool.request()
-            .query(`SELECT COUNT(*) as total_rows FROM [${tableName}]`)
-          
-          // Get column information
-          const columnsResult = await pool.request()
-            .query(`
-              SELECT 
-                COLUMN_NAME,
-                DATA_TYPE,
-                IS_NULLABLE,
-                CHARACTER_MAXIMUM_LENGTH
-              FROM INFORMATION_SCHEMA.COLUMNS 
-              WHERE TABLE_NAME = '${tableName}'
-              ORDER BY ORDINAL_POSITION
-            `)
+    const tableMetadata = []
+    let totalRows = 0
+    let totalColumns = 0
 
-          // Get sample data for preview
-          const sampleResult = await pool.request()
-            .query(`SELECT TOP 3 * FROM [${tableName}]`)
+    // Get detailed metadata for each table in the dataset
+    for (const tableName of dataset.relatedTables) {
+      try {
+        // Get row count
+        const countResult = await pool.request()
+          .query(`SELECT COUNT(*) as row_count FROM [${tableName}]`)
+        
+        const rowCount = countResult.recordset[0]?.row_count || 0
+        totalRows += rowCount
 
-          const totalRows = countResult.recordset[0]?.total_rows || 0
-          const columns = columnsResult.recordset
-          const sampleData = sampleResult.recordset
+        // Get column information
+        const columnsResult = await pool.request()
+          .query(`
+            SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_NAME = '${tableName}'
+            ORDER BY ORDINAL_POSITION
+          `)
+        
+        const columns = columnsResult.recordset
+        totalColumns += columns.length
 
-          return {
-            tableName,
-            rows: totalRows,
-            columns: columns.length,
-            columnInfo: columns,
-            preview: sampleData.length > 0 ? Object.keys(sampleData[0]) : [],
-            sampleData: sampleData
-          }
-        } catch (tableError) {
-          console.warn(`Could not get metadata for table ${tableName}:`, (tableError as Error).message)
-          return {
-            tableName,
-            rows: 0,
-            columns: 0,
-            columnInfo: [],
-            preview: [],
-            sampleData: [],
-            error: (tableError as Error).message
-          }
-        }
-      })
-    )
+        // Get sample data for preview (first 3 rows)
+        const previewResult = await pool.request()
+          .query(`SELECT TOP 3 * FROM [${tableName}]`)
+        
+        const preview = previewResult.recordset
+
+        tableMetadata.push({
+          tableName,
+          rowCount,
+          columnCount: columns.length,
+          columns: columns.map(col => ({
+            name: col.COLUMN_NAME,
+            type: col.DATA_TYPE,
+            nullable: col.IS_NULLABLE === 'YES',
+            maxLength: col.CHARACTER_MAXIMUM_LENGTH
+          })),
+          preview: preview.map(row => {
+            // Convert to array of values for preview display
+            return Object.keys(row).slice(0, 5).map(key => ({ 
+              column: key, 
+              value: row[key] 
+            }))
+          })
+        })
+
+      } catch (tableError) {
+        console.warn(`Could not get metadata for table ${tableName}:`, (tableError as Error).message)
+        tableMetadata.push({
+          tableName,
+          rowCount: 0,
+          columnCount: 0,
+          columns: [],
+          preview: [],
+          error: (tableError as Error).message
+        })
+      }
+    }
 
     await pool.close()
-
-    // Calculate totals across all tables
-    const totalRows = tableMetadata.reduce((sum, table) => sum + table.rows, 0)
-    const totalColumns = tableMetadata.reduce((sum, table) => sum + table.columns, 0)
 
     // Calculate approximate size (rough estimate)
     const avgRowSize = totalColumns * 50 // Rough estimate
     const approximateSize = Math.round((totalRows * avgRowSize) / (1024 * 1024) * 100) / 100
+
+    // Add rate limit headers to response
+    const headers = createRateLimitHeaders(rateLimitResult)
 
     return NextResponse.json({
       success: true,
@@ -221,8 +280,16 @@ export async function GET(
             `POST /api/datasets/${id}/query - Queries table with filters`
           ]
         }
+      },
+      usage: {
+        apiKey: validatedKey.name,
+        requestCount: validatedKey.usageCount,
+        rateLimit: {
+          remaining: rateLimitResult.remaining,
+          resetTime: rateLimitResult.resetTime
+        }
       }
-    })
+    }, { headers })
 
   } catch (error) {
     console.error('Error fetching dataset metadata:', error)

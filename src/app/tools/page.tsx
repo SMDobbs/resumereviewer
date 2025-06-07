@@ -76,7 +76,7 @@ export default function ToolsPage() {
         "Instant improvement suggestions",
         "Before/after comparison"
       ],
-      premium: false,
+      premium: true,
       available: true,
       route: "/resume-reviewer"
     },

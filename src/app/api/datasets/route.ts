@@ -16,8 +16,10 @@ const azureConfig = {
 }
 
 // Get list of available tables/datasets
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
   try {
+    // No API key required for listing datasets - users should be able to browse
+
     // Organized by prefixes as datamarts and standalone tables
     const datasets = [
       // E-commerce Datamart (5 tables)
@@ -146,56 +148,75 @@ export async function GET(_request: Request) {
       }
     ]
 
-    // Try to connect and get actual table information
+    // Connect to database to get actual row counts and metadata
+    // Gracefully handle database connection issues without exposing details
     try {
       const pool = new ConnectionPool(azureConfig)
       await pool.connect()
 
-      // Get actual table information for each dataset
+      // Get row counts for each dataset
       for (const dataset of datasets) {
         try {
-          // Get row count from main table
-          const countResult = await pool.request()
-            .query(`SELECT COUNT(*) as total_rows FROM [${dataset.mainTable}]`)
-          
-          // Get total columns across all related tables
-          const relatedTablesColumns = await Promise.all(
-            dataset.relatedTables.map(async (tableName) => {
-              try {
-                const result = await pool.request()
-                  .query(`
-                    SELECT COUNT(*) as table_columns
-                    FROM INFORMATION_SCHEMA.COLUMNS 
-                    WHERE TABLE_NAME = '${tableName}'
-                  `)
-                return result.recordset[0]?.table_columns || 0
-              } catch {
-                return 0
-              }
-            })
-          )
+          let totalRows = 0
+          let totalColumns = 0
 
-          dataset.rows = countResult.recordset[0]?.total_rows || 0
-          dataset.columns = relatedTablesColumns.reduce((sum, cols) => sum + cols, 0)
+          for (const tableName of dataset.relatedTables) {
+            try {
+              // Get row count
+              const countResult = await pool.request()
+                .query(`SELECT COUNT(*) as count FROM [${tableName}]`)
+              
+              const rowCount = countResult.recordset[0]?.count || 0
+              totalRows += rowCount
+
+              // Get column count
+              const columnsResult = await pool.request()
+                .query(`
+                  SELECT COUNT(*) as count 
+                  FROM INFORMATION_SCHEMA.COLUMNS 
+                  WHERE TABLE_NAME = '${tableName}'
+                `)
+              
+              const columnCount = columnsResult.recordset[0]?.count || 0
+              totalColumns += columnCount
+
+            } catch (tableError) {
+              console.warn(`Could not get metadata for table ${tableName}:`, (tableError as Error).message)
+            }
+          }
+
+          // Update dataset with actual data
+          dataset.rows = totalRows
+          dataset.columns = totalColumns
           
-          // Rough size estimate based on all related tables
-          const avgRowSize = dataset.columns * 50 // Rough estimate
-          const approximateSize = Math.round((dataset.rows * avgRowSize) / (1024 * 1024) * 100) / 100
+          // Calculate approximate size (rough estimate)
+          const avgRowSize = (totalColumns || 20) * 50 // Rough estimate
+          const approximateSize = Math.round((totalRows * avgRowSize) / (1024 * 1024) * 100) / 100
           dataset.size = `${approximateSize} MB`
-        } catch (tableError) {
-          console.warn(`Could not get info for dataset ${dataset.id}:`, (tableError as Error).message)
+
+        } catch (datasetError) {
+          console.warn(`Could not get metadata for dataset ${dataset.id}:`, (datasetError as Error).message)
         }
       }
 
       await pool.close()
-    } catch (connectionError) {
-      console.warn('Could not connect to Azure SQL database:', (connectionError as Error).message)
-    }
 
+    } catch (dbError) {
+      console.warn('Could not connect to database for metadata:', (dbError as Error).message)
+      // Continue without metadata - don't block users from seeing datasets
+    }
+    
     return NextResponse.json({
       success: true,
-      datasets
+      datasets,
+      meta: {
+        totalDatasets: datasets.length,
+        datamarts: datasets.filter(d => d.type === 'datamart').length,
+        tables: datasets.filter(d => d.type === 'table').length
+      },
+      note: "Datasets are freely browsable. Generate an API key for programmatic access with higher rate limits."
     })
+
   } catch (error) {
     console.error('Error fetching datasets:', error)
     return NextResponse.json(

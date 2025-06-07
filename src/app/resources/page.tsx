@@ -1,63 +1,59 @@
+"use client"
+
 import { 
   DocumentTextIcon, 
-  MapIcon,
-  StarIcon
+  MapIcon
 } from '@heroicons/react/24/outline'
 
 export default function ResourcesPage() {
   const resumeTemplates = [
     {
-      title: "Senior Data Analyst Resume",
-      description: "Perfect for 3-7 years experience. Highlights technical skills and business impact.",
+      title: "Lead Data Analyst Resume",
+      description: "A resume used by one of the founders to land a lead data analyst / Data Scientist Role.",
       category: "Resume Templates",
-      downloads: "2.1k",
-      rating: 4.9,
-      tags: ["ATS-Optimized", "Technical Focus", "Impact Metrics"]
+      tags: ["Advanced Analytics", "Data Science", "Senior Role"],
+      filePath: "/resume_example.pdf"
     },
     {
       title: "Entry-Level Analytics Resume",
       description: "Designed for new graduates and career changers entering analytics.",
       category: "Resume Templates", 
-      downloads: "3.2k",
-      rating: 4.8,
       tags: ["Entry-Level", "Skills-Based", "Project Showcase"]
     },
     {
       title: "Analytics Manager Resume",
       description: "Leadership-focused template for management and director-level positions.",
       category: "Resume Templates",
-      downloads: "1.5k", 
-      rating: 4.9,
       tags: ["Leadership", "Strategic", "Team Management"]
     }
   ]
 
-  const careerGuides = [
-    {
-      title: "The Analytics Career Roadmap",
-      description: "Complete guide from entry-level to C-suite. Includes salary benchmarks, skill requirements, and timeline expectations.",
-      category: "Career Guides",
-      pages: 42,
-      rating: 4.9,
-      tags: ["Career Planning", "Comprehensive", "Salary Data"]
-    },
-    {
-      title: "Negotiation Strategies for Analysts",
-      description: "Proven tactics for salary negotiations, promotion discussions, and offer evaluations.",
-      category: "Career Guides",
-      pages: 28,
-      rating: 4.8,
-      tags: ["Negotiation", "Salary", "Practical Tips"]
-    },
-    {
-      title: "Remote Analytics Work Guide",
-      description: "How to excel as a remote analyst, build relationships, and advance your career from anywhere.",
-      category: "Career Guides",
-      pages: 35,
-      rating: 4.7,
-      tags: ["Remote Work", "Communication", "Productivity"]
-    }
-  ]
+  // const careerGuides = [
+  //   {
+  //     title: "The Analytics Career Roadmap",
+  //     description: "Complete guide from entry-level to C-suite. Includes salary benchmarks, skill requirements, and timeline expectations.",
+  //     category: "Career Guides",
+  //     pages: 42,
+  //     rating: 4.9,
+  //     tags: ["Career Planning", "Comprehensive", "Salary Data"]
+  //   },
+  //   {
+  //     title: "Negotiation Strategies for Analysts",
+  //     description: "Proven tactics for salary negotiations, promotion discussions, and offer evaluations.",
+  //     category: "Career Guides",
+  //     pages: 28,
+  //     rating: 4.8,
+  //     tags: ["Negotiation", "Salary", "Practical Tips"]
+  //   },
+  //   {
+  //     title: "Remote Analytics Work Guide",
+  //     description: "How to excel as a remote analyst, build relationships, and advance your career from anywhere.",
+  //     category: "Career Guides",
+  //     pages: 35,
+  //     rating: 4.7,
+  //     tags: ["Remote Work", "Communication", "Productivity"]
+  //   }
+  // ]
 
   return (
     <div className="min-h-screen bg-gray-950 py-12">
@@ -82,35 +78,48 @@ export default function ResourcesPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {resumeTemplates.map((template, index) => (
-              <div key={index} className="glass rounded-xl p-6 card-hover">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-semibold">{template.title}</h3>
-                  <div className="flex items-center text-yellow-400">
-                    <StarIcon className="h-4 w-4 mr-1" />
-                    <span className="text-sm">{template.rating}</span>
-                  </div>
+              <div key={index} className="glass rounded-xl p-6 card-hover flex flex-col h-full">
+                <div className="mb-4">
+                  <span className="text-xs text-green-400 font-medium uppercase tracking-wider">
+                    {template.category}
+                  </span>
+                  <h3 className="text-xl font-semibold mt-2">{template.title}</h3>
                 </div>
-                <p className="text-gray-400 mb-4">{template.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
+                <p className="text-gray-400 mb-6 leading-relaxed flex-grow">{template.description}</p>
+                <div className="flex flex-wrap gap-2 mb-6">
                   {template.tags.map((tag, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-green-400/20 text-green-400 text-xs rounded-full">
+                    <span key={idx} className="px-3 py-1 bg-green-400/20 text-green-400 text-xs rounded-full">
                       {tag}
                     </span>
                   ))}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">{template.downloads} downloads</span>
-                  <button className="px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors">
-                    Download
-                  </button>
-                </div>
+                <button 
+                  className={`w-full px-4 py-3 rounded-lg font-medium transition-colors mt-auto ${
+                    template.filePath 
+                      ? 'bg-green-400/20 text-green-400 hover:bg-green-400/30' 
+                      : 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                  }`}
+                  onClick={() => {
+                    if (template.filePath) {
+                      const link = document.createElement('a');
+                      link.href = template.filePath;
+                      link.download = `${template.title.replace(/\s+/g, '_')}.pdf`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }
+                  }}
+                  disabled={!template.filePath}
+                >
+                  {template.filePath ? 'Download Template' : 'Coming Soon'}
+                </button>
               </div>
             ))}
           </div>
         </section>
 
         {/* Career Guides */}
-        <section className="mb-16">
+        {/* <section className="mb-16">
           <div className="flex items-center mb-8">
             <MapIcon className="h-8 w-8 text-green-400 mr-3" />
             <h2 className="text-3xl font-bold">Career Guides</h2>
@@ -142,7 +151,7 @@ export default function ResourcesPage() {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* Newsletter Signup */}
         <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-8 lg:p-12 text-center">
