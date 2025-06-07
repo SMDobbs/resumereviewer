@@ -84,7 +84,7 @@ export async function POST(
       )
     }
 
-    const validatedKey = validateApiKey(apiKey)
+    const validatedKey = await validateApiKey(apiKey)
     if (!validatedKey) {
       return NextResponse.json(
         { 

@@ -91,7 +91,7 @@ export async function GET(
     
     if (apiKey) {
       // API-based download - validate API key and use API rate limits
-      const validatedKey = validateApiKey(apiKey)
+      const validatedKey = await validateApiKey(apiKey)
       if (!validatedKey) {
         return NextResponse.json(
           { 
