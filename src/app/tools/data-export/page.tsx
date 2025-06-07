@@ -33,6 +33,15 @@ interface Dataset {
   tableCount?: number
 }
 
+interface ApiKey {
+  id: string
+  keyPreview: string
+  isActive: boolean
+  createdAt: string
+  lastUsed?: string
+  name?: string
+}
+
 // Icon mapping for different categories
 const getIconForCategory = (category: string) => {
   switch (category.toLowerCase()) {
@@ -99,7 +108,7 @@ export default function DataExportPage() {
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
   
   // API Key Management
-  const [userApiKeys, setUserApiKeys] = useState<any[]>([])
+  const [userApiKeys, setUserApiKeys] = useState<ApiKey[]>([])
   const [loadingApiKeys, setLoadingApiKeys] = useState(true)
   const [generatingKey, setGeneratingKey] = useState(false)
   const [downloadingDataset, setDownloadingDataset] = useState<string | null>(null)

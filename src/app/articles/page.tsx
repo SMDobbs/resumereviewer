@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowLeftIcon, ChartBarIcon, ClockIcon, TagIcon } from '@heroicons/react/24/outline'
+import { ChartBarIcon, ClockIcon, TagIcon } from '@heroicons/react/24/outline'
 
 export default function ArticlesPage() {
   const [email, setEmail] = useState('')

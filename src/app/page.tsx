@@ -1,7 +1,5 @@
 'use client'
 
-import Link from 'next/link'
-import { ChartBarIcon, BookOpenIcon, BriefcaseIcon, UserGroupIcon, SparklesIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import HeroSection from '@/components/landing/HeroSection'
 import WhyAnalystHubWorks from '@/components/landing/WhyAnalystHubWorks'
 import RecommendedResources from '@/components/landing/CoursePreview'

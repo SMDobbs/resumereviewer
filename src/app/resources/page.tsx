@@ -1,8 +1,7 @@
 "use client"
 
 import { 
-  DocumentTextIcon, 
-  MapIcon
+  DocumentTextIcon
 } from '@heroicons/react/24/outline'
 
 export default function ResourcesPage() {

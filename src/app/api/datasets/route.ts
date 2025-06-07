@@ -16,7 +16,7 @@ const azureConfig = {
 }
 
 // Get list of available tables/datasets
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     // No API key required for listing datasets - users should be able to browse
 

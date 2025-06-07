@@ -1,7 +1,7 @@
 'use client'
 
 import { useUser } from '@/lib/context/UserContext'
-import { UserIcon, CalendarDaysIcon, ShieldCheckIcon, ChartBarIcon, DocumentTextIcon, CloudArrowDownIcon, BookOpenIcon, AcademicCapIcon, SparklesIcon, TrophyIcon, StarIcon, ClockIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
+import { UserIcon, ChartBarIcon, DocumentTextIcon, CloudArrowDownIcon, BookOpenIcon, AcademicCapIcon, SparklesIcon, TrophyIcon, StarIcon, ClockIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
