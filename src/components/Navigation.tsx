@@ -201,23 +201,7 @@ const Navigation = () => {
 
             {/* Auth Buttons / User Menu */}
             <div className="flex items-center space-x-3 ml-6">
-              {isLandingPage ? (
-                // Landing page - show login/signup buttons
-                <>
-                  <button 
-                    onClick={handleSignIn}
-                    className="px-4 py-2 text-gray-300 hover:text-green-400 transition-colors text-sm font-medium"
-                  >
-                    Sign In
-                  </button>
-                  <button 
-                    onClick={handleSignUp}
-                    className="btn-primary px-6 py-2.5 text-sm font-semibold shadow-lg hover:shadow-green-400/25"
-                  >
-                    Get Started
-                  </button>
-                </>
-              ) : loading ? (
+              {loading ? (
                 <div className="w-9 h-9 bg-gray-800 animate-pulse rounded-full"></div>
               ) : user ? (
                 <div className="flex items-center space-x-4">
@@ -272,27 +256,43 @@ const Navigation = () => {
                     )}
                   </div>
                 </div>
-              ) : null}
+              ) : (
+                // Show login/signup buttons only if user is not logged in
+                <>
+                  <button 
+                    onClick={handleSignIn}
+                    className="px-4 py-2 text-gray-300 hover:text-green-400 transition-colors text-sm font-medium"
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    onClick={handleSignUp}
+                    className="btn-primary px-6 py-2.5 text-sm font-semibold shadow-lg hover:shadow-green-400/25"
+                  >
+                    Get Started
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-4">
             {/* Mobile Auth Buttons / User Avatar */}
-            {isLandingPage ? (
+            {loading ? (
+              <div className="w-8 h-8 bg-gray-800 animate-pulse rounded-full"></div>
+            ) : user ? (
+              <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center">
+                <span className="text-green-400 text-sm font-medium">{getUserInitials()}</span>
+              </div>
+            ) : (
               <button 
                 onClick={handleSignIn}
                 className="text-green-400 text-sm font-medium"
               >
                 Sign In
               </button>
-            ) : loading ? (
-              <div className="w-8 h-8 bg-gray-800 animate-pulse rounded-full"></div>
-            ) : user ? (
-              <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center">
-                <span className="text-green-400 text-sm font-medium">{getUserInitials()}</span>
-              </div>
-            ) : null}
+            )}
             
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -379,30 +379,14 @@ const Navigation = () => {
               ))}
               
               {/* Mobile Auth Section */}
-              {isLandingPage ? (
+              {loading ? (
                 <div className="mt-6 pt-4 border-t border-gray-800/50">
-                  <div className="space-y-3">
-                    <button 
-                      onClick={() => {
-                        handleSignIn()
-                        setIsOpen(false)
-                      }}
-                      className="w-full px-3 py-2 text-left rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
-                    >
-                      Sign In
-                    </button>
-                    <button 
-                      onClick={() => {
-                        handleSignUp()
-                        setIsOpen(false)
-                      }}
-                      className="w-full btn-primary py-3 text-center font-semibold"
-                    >
-                      Get Started
-                    </button>
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-800 rounded w-24 mb-2"></div>
+                    <div className="h-8 bg-gray-800 rounded"></div>
                   </div>
                 </div>
-              ) : user && (
+              ) : user ? (
                 <div className="mt-6 pt-4 border-t border-gray-800/50">
                   <div className="space-y-3">
                     <div className="px-3 py-2 text-sm text-gray-400">
@@ -422,6 +406,29 @@ const Navigation = () => {
                     >
                       <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
                       Sign Out
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6 pt-4 border-t border-gray-800/50">
+                  <div className="space-y-3">
+                    <button 
+                      onClick={() => {
+                        handleSignIn()
+                        setIsOpen(false)
+                      }}
+                      className="w-full px-3 py-2 text-left rounded-lg text-gray-300 hover:text-green-400 hover:bg-green-400/5 transition-colors"
+                    >
+                      Sign In
+                    </button>
+                    <button 
+                      onClick={() => {
+                        handleSignUp()
+                        setIsOpen(false)
+                      }}
+                      className="w-full btn-primary py-3 text-center font-semibold"
+                    >
+                      Get Started
                     </button>
                   </div>
                 </div>

@@ -79,17 +79,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      })
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
-    
+    // Immediately clear user state and redirect for responsive UX
     setUser(null)
-    router.push('/login')
+    router.push('/')
+    
+    // Make API call in background to clear server-side session
+    // Don't await this - let it happen in the background
+    fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    }).catch(error => {
+      console.error('Logout API error:', error)
+      // Even if API fails, user is already logged out locally
+    })
   }
 
   const refreshUser = async () => {

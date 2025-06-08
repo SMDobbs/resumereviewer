@@ -54,22 +54,14 @@ export default function ArticlesPage() {
   }
 
   const articles = [
+
     {
-      id: 1,
-      title: "How Target Uses Analytics to Predict Customer Behavior",
-      excerpt: "Discover the fascinating analytics behind Target's customer prediction models and how they revolutionized retail analytics.",
-      category: "Retail Analytics",
-      readTime: "8 min read",
-      date: "2 days ago",
-      premium: false
-    },
-    {
-      id: 2,
-      title: "5 SQL Skills That Got Me Hired at a Fortune 500",
-      excerpt: "The specific SQL techniques that made me stand out in technical interviews and helped me land my dream role.",
+      slug: "analytics-portfolio-project-guide",
+      title: "Three Tips for Landing Your First Analytics Role",
+      excerpt: "Read about the three tips that we suggest that can help you really stand out in landing your first role in Analytics.",
       category: "Career Tips",
-      readTime: "6 min read",
-      date: "5 days ago",
+      readTime: "4 min read",
+      date: "06-07-2025",
       premium: false
     }
   ]
@@ -109,7 +101,7 @@ export default function ArticlesPage() {
         {/* Articles Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {articles.map((article) => (
-            <article key={article.id} className="glass rounded-xl p-6 card-hover">
+            <article key={article.slug} className="glass rounded-xl p-6 card-hover">
               <div className="flex items-center gap-3 mb-3">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-400/20 text-green-400">
                   <TagIcon className="h-3 w-3 mr-1" />
@@ -131,7 +123,7 @@ export default function ArticlesPage() {
               
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">{article.date}</span>
-                <Link href={`/articles/${article.id}`} className="text-green-400 hover:text-green-300 text-sm inline-flex items-center">
+                <Link href={`/articles/${article.slug}`} className="text-green-400 hover:text-green-300 text-sm inline-flex items-center">
                   Read More →
                 </Link>
               </div>

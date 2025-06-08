@@ -187,9 +187,11 @@ export default function DashboardPage() {
               </div>
               <div className="space-y-4">
                 <article className="border-b border-gray-800 pb-3">
-                  <h4 className="font-medium mb-1 hover:text-green-400 cursor-pointer">
-                    How Target Uses Analytics to Predict Customer Behavior
-                  </h4>
+                  <Link href="/articles/target-customer-behavior-analytics">
+                    <h4 className="font-medium mb-1 hover:text-green-400 cursor-pointer transition-colors">
+                      How Target Uses Analytics to Predict Customer Behavior
+                    </h4>
+                  </Link>
                   <p className="text-gray-400 text-sm mb-1">
                     Discover the fascinating analytics behind Target's customer prediction models...
                   </p>
@@ -199,9 +201,11 @@ export default function DashboardPage() {
                   </div>
                 </article>
                 <article className="border-b border-gray-800 pb-3">
-                  <h4 className="font-medium mb-1 hover:text-green-400 cursor-pointer">
-                    5 SQL Skills That Got Me Hired at a Fortune 500
-                  </h4>
+                  <Link href="/articles/sql-skills-fortune-500-interview">
+                    <h4 className="font-medium mb-1 hover:text-green-400 cursor-pointer transition-colors">
+                      5 SQL Skills That Got Me Hired at a Fortune 500
+                    </h4>
+                  </Link>
                   <p className="text-gray-400 text-sm mb-1">
                     The specific SQL techniques that made me stand out in technical interviews...
                   </p>
@@ -211,15 +215,17 @@ export default function DashboardPage() {
                   </div>
                 </article>
                 <article>
-                  <h4 className="font-medium mb-1 hover:text-green-400 cursor-pointer">
-                    Building Your First Analytics Portfolio Project
-                  </h4>
+                  <Link href="/articles/analytics-portfolio-project-guide">
+                    <h4 className="font-medium mb-1 hover:text-green-400 cursor-pointer transition-colors">
+                      Three Tips for Landing Your First Analytics Role
+                    </h4>
+                  </Link>
                   <p className="text-gray-400 text-sm mb-1">
-                    Step-by-step guide to creating a portfolio that gets you noticed...
+                    Read about the three tips that can help you really stand out in landing your first role...
                   </p>
                   <div className="flex items-center text-xs text-gray-500">
                     <ClockIcon className="h-3 w-3 mr-1" />
-                    5 min read • 1 week ago
+                    4 min read • today
                   </div>
                 </article>
               </div>
