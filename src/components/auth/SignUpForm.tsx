@@ -95,7 +95,7 @@ export default function SignUpForm() {
               Premium Access
             </div>
             <div className="text-4xl font-bold text-white mb-2">
-              $97<span className="text-xl text-gray-400 font-normal"> one-time</span>
+              $19.99<span className="text-xl text-gray-400 font-normal"> one-time</span>
             </div>
             <p className="text-gray-400 text-sm">Lifetime access • No recurring charges</p>
           </div>
