@@ -8,7 +8,7 @@ export interface SitemapEntry {
 }
 
 export const sitemapConfig = {
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://your-domain.com',
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://analysthub.com',
   defaultChangeFrequency: 'weekly' as const,
   defaultPriority: 0.7,
 }
@@ -34,6 +34,7 @@ export const toolRoutes: SitemapEntry[] = [
   { url: '/tools/mock-interview', priority: 0.8, changeFrequency: 'weekly' },
   { url: '/tools/linkedin-optimizer', priority: 0.8, changeFrequency: 'weekly' },
   { url: '/tools/skill-assessment', priority: 0.8, changeFrequency: 'weekly' },
+  { url: '/tools/data-export', priority: 0.8, changeFrequency: 'weekly' },
   { url: '/resume-reviewer', priority: 0.8, changeFrequency: 'weekly' },
 ]
 

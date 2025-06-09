@@ -6,7 +6,6 @@ import {
   ChartBarIcon, 
   SparklesIcon, 
   CodeBracketIcon, 
-  ClockIcon,
   CheckCircleIcon,
   ArrowRightIcon,
   PlayIcon,

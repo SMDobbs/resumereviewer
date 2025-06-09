@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useUser } from '@/lib/context/UserContext'
-import { ArrowRightIcon, DocumentTextIcon, SparklesIcon, BookOpenIcon, UserGroupIcon, ChartBarIcon, BriefcaseIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, SparklesIcon, BookOpenIcon, UserGroupIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 
 export default function FeaturesSection() {
   const { user } = useUser()
