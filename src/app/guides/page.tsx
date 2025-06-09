@@ -150,12 +150,12 @@ export default function GuidesPage() {
                     <span className="text-xl font-bold text-green-400">FREE</span>
                   )}
                 </div>
-                <Link 
-                  href={`/guides/${guide.id}`} 
-                  className={guide.isPremium ? "btn-primary" : "btn-secondary"}
+                <button 
+                  disabled
+                  className="px-4 py-2 bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
                 >
-                  {guide.isPremium ? "Get Access" : "Download Free"}
-                </Link>
+                  Coming Soon
+                </button>
               </div>
             </div>
           ))}
