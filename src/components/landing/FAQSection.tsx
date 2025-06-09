@@ -9,7 +9,7 @@ export default function FAQSection() {
   const faqs = [
     {
       question: "What's included in the Full Access Pass?",
-      answer: "Your one-time purchase includes lifetime access to all career articles, curated learning roadmaps, downloadable resume templates, career frameworks, and industry insights. You get strategic guidance for breaking into analytics, advancing your career, and navigating different industry sectors based on real Fortune 100 experience."
+      answer: "Your one-time purchase includes lifetime access to all career articles, industry insights, downloadable resume templates, career frameworks, and strategic guidance. You get comprehensive resources for breaking into analytics, advancing your career, and navigating different industry sectors based on real Fortune 100 experience."
     },
     {
       question: "Do you provide actual courses or just recommendations?",
@@ -25,7 +25,7 @@ export default function FAQSection() {
     },
     {
       question: "Is this really a one-time payment with no recurring charges?",
-      answer: "Absolutely! The $29.99 Full Access Pass is a one-time payment that gives you lifetime access to all content, resources, and tools. There are no monthly fees, no renewal charges, and no hidden costs. The only additional charges are the optional 1:1 coaching sessions if you choose to book them."
+      answer: "Absolutely! The $19.99 Full Access Pass is a one-time payment that gives you lifetime access to all content, resources, and tools. There are no monthly fees, no renewal charges, and no hidden costs. The only additional charges are the optional 1:1 coaching sessions if you choose to book them."
     }
   ]
 

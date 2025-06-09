@@ -10,27 +10,27 @@ export default function PricingSection() {
             Simple, <span className="gradient-text">Transparent</span> Pricing
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Get unlimited access to career articles, curated learning roadmaps, downloadable resources, 
-            strategic guidance, and direct messaging with our expert team. Cancel anytime.
+            Get lifetime access to career articles, industry insights, downloadable templates, 
+            and strategic guidance from our expert team. One payment, lifetime value.
           </p>
         </div>
 
-        {/* Main Subscription */}
+        {/* One-Time Payment */}
         <div className="max-w-4xl mx-auto mb-16">
           <div className="glass rounded-xl p-8 relative border-2 border-green-400">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
               <span className="bg-gradient-to-r from-green-400 to-green-600 text-black px-4 py-1 rounded-full text-sm font-semibold">
-                MONTHLY SUBSCRIPTION
+                ONE-TIME PAYMENT
               </span>
             </div>
             
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-2">AnalystHub Pro</h3>
+              <h3 className="text-3xl font-bold mb-2">Full Access Pass</h3>
               <div className="text-5xl font-bold mb-2">
                 <span className="gradient-text">$19.99</span>
-                <span className="text-lg text-gray-400">/month</span>
+                <span className="text-lg text-gray-400"> one-time</span>
               </div>
-              <p className="text-gray-400">Complete access to all career resources plus direct messaging support</p>
+              <p className="text-gray-400">Lifetime access to all career resources and strategic guidance</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -57,23 +57,23 @@ export default function PricingSection() {
               </div>
 
               <div>
-                <h4 className="text-lg font-semibold mb-4 text-green-400">Learning Roadmaps</h4>
+                <h4 className="text-lg font-semibold mb-4 text-green-400">Industry Insights</h4>
                 <ul className="space-y-3">
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Curated course recommendations</span>
+                    <span className="text-sm">Market trend analysis</span>
                   </li>
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Strategic learning sequences</span>
+                    <span className="text-sm">Skill demand forecasting</span>
                   </li>
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Book & resource lists</span>
+                    <span className="text-sm">Company culture insights</span>
                   </li>
                   <li className="flex items-center">
                     <CheckIcon className="h-5 w-5 text-green-400 mr-3 flex-shrink-0" />
-                    <span className="text-sm">Skill development priorities</span>
+                    <span className="text-sm">Industry-specific strategies</span>
                   </li>
                 </ul>
               </div>
@@ -124,10 +124,10 @@ export default function PricingSection() {
             </div>
 
             <Link href="/dashboard" className="btn-primary w-full text-lg py-4 block text-center">
-              Start Your Subscription
+              Get Full Access Now
             </Link>
             <p className="text-center text-sm text-gray-500 mt-3">
-              Monthly billing • Cancel anytime • 7-day free trial
+              One-time payment • Lifetime access • No recurring charges
             </p>
           </div>
         </div>
@@ -249,7 +249,7 @@ export default function PricingSection() {
         <div className="text-center mt-12">
           <p className="text-gray-400 text-sm">
             All premium 1:1 services include detailed follow-up materials and extended support. 
-            <span className="text-green-400">Active subscription required</span> to book sessions.
+            <span className="text-green-400">Full Access Pass required</span> to book sessions.
           </p>
         </div>
       </div>

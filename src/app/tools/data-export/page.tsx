@@ -71,36 +71,36 @@ const apiEndpoints = [
   {
     method: 'GET',
     endpoint: '/api/datasets',
-    description: 'List all available datasets (datamarts and tables) with metadata',
+    description: 'List all available datasets (datamarts and tables) with metadata. External API access requires authentication.',
     example: 'curl -H "Authorization: Bearer your_api_key" "https://analysthub.com/api/datasets"',
-    authRequired: true
+    authRequired: true,
+    note: 'Web app can browse internally, external API calls require authentication'
   },
   {
     method: 'GET',
     endpoint: '/api/datasets/{id}',
-    description: 'Get detailed metadata for a specific dataset including all related tables',
+    description: 'Get detailed metadata for a specific dataset including table schemas and row counts',
     example: 'curl -H "Authorization: Bearer your_api_key" "https://analysthub.com/api/datasets/ecom-datamart"',
     authRequired: true
   },
   {
     method: 'GET',
     endpoint: '/api/datasets/{id}/download',
-    description: 'Download dataset. For datamarts: use ?format=xlsx for Excel with all tables as sheets. API key provides higher rate limits.',
-    example: 'curl -H "Authorization: Bearer your_api_key" "https://analysthub.com/api/datasets/ecom-datamart/download?format=xlsx"',
-    authRequired: false,
-    note: 'API key optional but recommended for higher rate limits'
+    description: 'Download dataset in CSV, JSON, or Excel format. API key required for all external access (Excel, Power BI, Python, etc.). UI downloads work without keys.',
+    example: 'curl -H "Authorization: Bearer your_api_key" "https://analysthub.com/api/datasets/ecom-datamart/download?format=csv"',
+    authRequired: true,
+    note: 'Web app download buttons work without keys, but Excel, Power BI, Python, curl, etc. require API keys'
   },
   {
     method: 'POST',
     endpoint: '/api/datasets/{id}/query',
-    description: 'Query dataset with filters, sorting, and table selection. Requires API key.',
-    example: 'curl -X POST -H "Authorization: Bearer your_api_key" -H "Content-Type: application/json" -d \'{"table": "ecom_orders", "filters": {"total_amount": 100}, "limit": 500}\' "https://analysthub.com/api/datasets/ecom-datamart/query"',
+    description: 'Query datasets with filters, sorting, and table selection. Advanced querying requires authentication.',
+    example: 'curl -X POST -H "Authorization: Bearer your_api_key" -H "Content-Type: application/json" -d \'{"table": "ecom_orders", "filters": {"total_amount": {"$gte": 100}}, "limit": 500}\' "https://analysthub.com/api/datasets/ecom-datamart/query"',
     authRequired: true
   }
 ]
 
 export default function DataExportPage() {
-  const [activeTab, setActiveTab] = useState<'datasets' | 'api'>('datasets')
   const [datasets, setDatasets] = useState<Dataset[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -143,7 +143,7 @@ export default function DataExportPage() {
       try {
         setLoading(true)
         
-        // Fetch datasets - no API key needed for viewing
+        // Fetch datasets - webapp can access internally without API key
         const response = await fetch('/api/datasets')
         const data = await response.json()
         
@@ -373,115 +373,147 @@ export default function DataExportPage() {
           </p>
         </div>
 
-        {/* API Key Management - Minimal Section */}
-        <div className="glass rounded-xl p-4 mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <CodeBracketIcon className="h-5 w-5 text-green-400" />
-              <h2 className="text-lg font-semibold text-white">API Access</h2>
-              <span className="text-xs text-gray-500">25/hour</span>
+        {/* API Key Management - Prominent Section */}
+        <div className="glass rounded-xl p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <CodeBracketIcon className="h-6 w-6 text-green-400" />
+              <div>
+                <h2 className="text-xl font-semibold text-white">API Access Required</h2>
+                <p className="text-sm text-gray-400">Generate an API key to access datasets programmatically</p>
+              </div>
             </div>
+            <span className="px-3 py-1 bg-green-400/20 text-green-400 text-sm rounded-full">
+              1000 requests/hour
+            </span>
           </div>
           
           {loadingApiKeys ? (
-            <div className="flex items-center py-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-400 border-t-transparent mr-2"></div>
-              <span className="text-sm text-gray-400">Loading...</span>
+            <div className="flex items-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-green-400 border-t-transparent mr-3"></div>
+              <span className="text-gray-400">Loading API key status...</span>
             </div>
           ) : userApiKeys.length > 0 ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg border border-gray-700/30">
-                <div className="flex items-center space-x-2 flex-1">
-                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                  <div className="font-mono text-sm text-gray-300 flex-1">
-                    {userApiKeys[0].keyPreview}<span className="text-gray-600">••••••••••••••••••••••••••••••••••••••••</span>
-                  </div>
+            <div className="space-y-4">
+              <div className="p-4 bg-green-400/10 border border-green-400/20 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                  <span className="text-green-400 font-medium">✅ API Key Active</span>
                 </div>
-                <div className="flex items-center space-x-2 ml-3">
+                <div className="font-mono text-sm text-gray-300 bg-gray-900 p-3 rounded mb-3">
+                  {userApiKeys[0].keyPreview}<span className="text-gray-600">••••••••••••••••••••••••••••••••••••••••</span>
+                </div>
+                <div className="flex items-center space-x-3">
                   <button
                     onClick={() => {
                       const storedKey = localStorage.getItem('analysthub_api_key')
                       if (storedKey) {
                         navigator.clipboard.writeText(storedKey)
-                        setCopyFeedback('Copied!')
+                        setCopyFeedback('✅ Copied!')
                         setTimeout(() => setCopyFeedback(null), 2000)
                       } else {
-                        setCopyFeedback('Not found')
+                        setCopyFeedback('❌ Not found')
                         setTimeout(() => setCopyFeedback(null), 2000)
                       }
                     }}
-                    className="px-2 py-1 text-xs bg-green-400/10 hover:bg-green-400/20 text-green-400 rounded transition-colors"
+                    className="px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors text-sm font-medium"
                   >
-                    {copyFeedback || 'Copy'}
+                    {copyFeedback || 'Copy Full Key'}
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm('Delete API key?')) {
+                      if (confirm('Delete API key and generate a new one?')) {
                         deleteApiKey(userApiKeys[0].id)
                       }
                     }}
-                    className="px-2 py-1 text-xs bg-red-400/10 hover:bg-red-400/20 text-red-400 rounded transition-colors"
+                    className="px-4 py-2 border border-red-400 text-red-400 rounded-lg hover:bg-red-400/10 transition-colors text-sm"
                   >
-                    Del
+                    Generate New Key
                   </button>
                 </div>
               </div>
               
               {actionFeedback && (
-                <div className="p-2 bg-green-400/10 border border-green-400/20 rounded text-xs text-green-400">
+                <div className="p-3 bg-green-400/10 border border-green-400/20 rounded text-sm text-green-400">
                   {actionFeedback}
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">
-                Generate an API key to access datasets programmatically
-              </p>
+            <div className="space-y-4">
+              <div className="p-4 bg-red-400/10 border border-red-400/20 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
+                  <span className="text-red-400 font-medium">🔑 API Key Required</span>
+                </div>
+                <p className="text-gray-300 mb-3">
+                  You need an API key to access datasets through our API endpoints. Without a key, you cannot:
+                </p>
+                <ul className="text-sm text-gray-400 space-y-1 mb-4">
+                  <li>• Query datasets with filters</li>
+                  <li>• Access programmatic downloads</li>
+                  <li>• Use endpoints in your applications</li>
+                  <li>• Connect to Power BI, Tableau, or custom dashboards</li>
+                </ul>
+              </div>
               
-              <div className="flex items-center space-x-3">
-                {actionFeedback && (
-                  <span className="text-xs text-green-400">{actionFeedback}</span>
-                )}
-                <button
-                  onClick={generateApiKey}
-                  disabled={generatingKey}
-                  className="px-3 py-1.5 text-sm bg-green-400 text-gray-900 rounded hover:bg-green-300 transition-colors font-medium disabled:opacity-50"
-                >
-                  {generatingKey ? 'Generating...' : 'Generate Key'}
-                </button>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-300 font-medium">Ready to get started?</p>
+                  <p className="text-sm text-gray-400">Generate your free API key now</p>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  {actionFeedback && (
+                    <span className="text-sm text-green-400">{actionFeedback}</span>
+                  )}
+                  <button
+                    onClick={generateApiKey}
+                    disabled={generatingKey}
+                    className="px-6 py-3 bg-green-400 text-gray-900 rounded-lg hover:bg-green-300 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {generatingKey ? 'Generating...' : '🔑 Generate API Key'}
+                  </button>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 mb-8">
-          <button
-            onClick={() => setActiveTab('datasets')}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              activeTab === 'datasets'
-                ? 'bg-green-400/20 text-green-400 border border-green-400/30'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            <TableCellsIcon className="h-5 w-5 inline mr-2" />
-            Datasets
-          </button>
-          <button
-            onClick={() => setActiveTab('api')}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              activeTab === 'api'
-                ? 'bg-green-400/20 text-green-400 border border-green-400/30'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            <CodeBracketIcon className="h-5 w-5 inline mr-2" />
-            API Documentation
-          </button>
+        {/* Portfolio Project Ideas */}
+        <div className="glass rounded-xl p-6 mb-8">
+          <div className="flex items-center mb-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center mr-3">
+              <ChartBarIcon className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-white">Build Amazing Portfolio Projects</h2>
+              <p className="text-gray-400 text-sm">Real datasets to showcase your analytics skills</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 bg-purple-400/10 border border-purple-400/20 rounded-lg">
+              <div className="text-purple-400 text-sm font-medium mb-1">📊 Interactive Dashboards</div>
+              <div className="text-gray-300 text-xs">Power BI, Tableau, or custom web dashboards</div>
+            </div>
+            <div className="p-4 bg-blue-400/10 border border-blue-400/20 rounded-lg">
+              <div className="text-blue-400 text-sm font-medium mb-1">🤖 Predictive Models</div>
+              <div className="text-gray-300 text-xs">Machine learning with Python, R, or SQL</div>
+            </div>
+            <div className="p-4 bg-green-400/10 border border-green-400/20 rounded-lg">
+              <div className="text-green-400 text-sm font-medium mb-1">📈 Executive Reports</div>
+              <div className="text-gray-300 text-xs">Business insights and KPI analysis</div>
+            </div>
+            <div className="p-4 bg-orange-400/10 border border-orange-400/20 rounded-lg">
+              <div className="text-orange-400 text-sm font-medium mb-1">🔗 API Integrations</div>
+              <div className="text-gray-300 text-xs">Real-time data feeds and applications</div>
+            </div>
+          </div>
         </div>
 
-        {activeTab === 'datasets' && (
+        {/* Datasets Section */}
+        <div>
           <div>
             {loading && (
               <div className="text-center py-12">
@@ -751,324 +783,9 @@ export default function DataExportPage() {
                 </div>
               </div>
               
-              <div className="mt-8 p-4 bg-green-400/10 border border-green-400/20 rounded-lg">
-                <h4 className="font-medium text-green-400 mb-2">💡 Portfolio Project Ideas</h4>
-                <ul className="text-sm text-gray-300 space-y-1">
-                  <li>• Build interactive dashboards in Tableau, Power BI, or Python</li>
-                  <li>• Create API-powered web apps with real-time data updates</li>
-                  <li>• Develop predictive models and showcase your findings</li>
-                  <li>• Design executive-level reports with actionable insights</li>
-                </ul>
-              </div>
             </div>
           </div>
-        )}
-
-        {activeTab === 'api' && (
-          <div className="space-y-8">
-            {/* API Key Generation */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">API Authentication</h3>
-              
-              {userApiKeys.length > 0 ? (
-                <div className="space-y-4">
-                  <div className="p-4 bg-green-400/10 border border-green-400/20 rounded-lg">
-                    <h4 className="font-medium text-green-400 mb-2">✅ API Key Active</h4>
-                    <p className="text-sm text-gray-300 mb-2">
-                      Your API key is ready to use. Rate limit: 25 requests per hour.
-                    </p>
-                    <div className="bg-gray-900 p-3 rounded font-mono text-sm break-all">
-                      {userApiKeys[0].keyPreview}
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => {
-                        const storedKey = localStorage.getItem('analysthub_api_key')
-                        if (storedKey) {
-                          navigator.clipboard.writeText(storedKey)
-                          setCopyFeedback('Copied!')
-                          setTimeout(() => setCopyFeedback(null), 2000)
-                        } else {
-                          setCopyFeedback('Key not found')
-                          setTimeout(() => setCopyFeedback(null), 2000)
-                        }
-                      }}
-                      className="px-4 py-2 bg-green-400/20 text-green-400 rounded-lg hover:bg-green-400/30 transition-colors text-sm"
-                    >
-                      {copyFeedback || 'Copy Full Key'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm('Delete API key?')) {
-                          deleteApiKey(userApiKeys[0].id)
-                        }
-                      }}
-                      className="px-4 py-2 border border-red-400 text-red-400 rounded-lg hover:bg-red-400/10 transition-colors text-sm"
-                    >
-                      Generate New Key
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-gray-400">
-                    Generate your API key to access datasets programmatically. Rate limit: 25 requests per hour.
-                  </p>
-                  
-                  <div className="p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-lg">
-                    <h4 className="font-medium text-yellow-400 mb-2">🔑 API Key Benefits</h4>
-                    <ul className="text-sm text-gray-300 space-y-1">
-                      <li>• <strong>Higher Rate Limits:</strong> 25 requests/hour vs 10 downloads/hour</li>
-                      <li>• <strong>Query Access:</strong> Filter and query datasets with SQL-like syntax</li>
-                      <li>• <strong>Programmatic Access:</strong> Perfect for dashboards and applications</li>
-                      <li>• <strong>Multiple Formats:</strong> JSON, CSV, and Excel downloads</li>
-                    </ul>
-                  </div>
-                  
-                  <button
-                    onClick={generateApiKey}
-                    disabled={generatingKey}
-                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {generatingKey ? 'Generating...' : 'Generate API Key'}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Rate Limits Information */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">Rate Limits</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 border border-gray-700 rounded-lg">
-                  <h4 className="font-medium mb-3 text-red-400">🚫 Without API Key</h4>
-                  <ul className="text-sm text-gray-400 space-y-2">
-                    <li>• <strong>Downloads:</strong> 10 per hour</li>
-                    <li>• <strong>API Access:</strong> Not available</li>
-                    <li>• <strong>Queries:</strong> Not available</li>
-                  </ul>
-                  <div className="mt-3 text-xs text-gray-500">
-                    Based on IP address tracking
-                  </div>
-                </div>
-                
-                <div className="p-4 border border-green-400/30 bg-green-400/5 rounded-lg">
-                  <h4 className="font-medium mb-3 text-green-400">✅ With API Key</h4>
-                  <ul className="text-sm text-gray-300 space-y-2">
-                    <li>• <strong>API Requests:</strong> 25 per hour</li>
-                    <li>• <strong>Queries:</strong> Included in API limits</li>
-                    <li>• <strong>Downloads:</strong> Included in API limits</li>
-                  </ul>
-                  <div className="mt-3 text-xs text-green-400">
-                    Perfect for portfolio projects
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6 p-4 bg-blue-400/10 border border-blue-400/20 rounded-lg">
-                <h4 className="font-medium text-blue-400 mb-2">💡 Best Practices</h4>
-                <ul className="text-sm text-gray-300 space-y-1">
-                  <li>• Use API keys for any automated or dashboard applications</li>
-                  <li>• Cache responses when possible to reduce API calls</li>
-                  <li>• Monitor rate limit headers in responses</li>
-                  <li>• Use appropriate formats (JSON for APIs, CSV for analysis)</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* API Endpoints */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-6">API Endpoints</h3>
-              <div className="space-y-6">
-                {apiEndpoints.map((endpoint, index) => (
-                  <div key={index} className="border border-gray-700 rounded-lg p-4">
-                    <div className="flex items-center mb-3">
-                      <span className={`px-2 py-1 rounded text-xs font-medium mr-3 ${
-                        endpoint.method === 'GET' ? 'bg-green-400/20 text-green-400' : 'bg-blue-400/20 text-blue-400'
-                      }`}>
-                        {endpoint.method}
-                      </span>
-                      <code className="text-green-400 font-mono">{endpoint.endpoint}</code>
-                      {endpoint.authRequired && (
-                        <span className="ml-3 px-2 py-1 bg-red-400/20 text-red-400 text-xs rounded">
-                          API Key Required
-                        </span>
-                      )}
-                      {endpoint.note && (
-                        <span className="ml-3 px-2 py-1 bg-yellow-400/20 text-yellow-400 text-xs rounded">
-                          Optional Auth
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-400 mb-3">{endpoint.description}</p>
-                    {endpoint.note && (
-                      <p className="text-sm text-yellow-400 mb-3">{endpoint.note}</p>
-                    )}
-                    <div className="bg-gray-900 rounded p-3">
-                      <div className="text-xs text-gray-500 mb-1">Example:</div>
-                      <code className="text-sm text-gray-300 font-mono break-all">{endpoint.example}</code>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Code Examples */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-6">Code Examples</h3>
-              
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-3 text-green-400">Python</h4>
-                  <div className="bg-gray-900 rounded-lg p-4">
-                    <pre className="text-sm text-gray-300 overflow-x-auto">
-{`import requests
-import pandas as pd
-
-# Your API key
-API_KEY = "your_api_key_here"
-headers = {"Authorization": f"Bearer {API_KEY}"}
-
-# Get all available datasets
-response = requests.get("https://analysthub.com/api/datasets", headers=headers)
-datasets = response.json()
-
-# Get e-commerce dataset details
-ecom_meta = requests.get(
-    "https://analysthub.com/api/datasets/ecom-datamart", 
-    headers=headers
-)
-print(f"Available tables: {ecom_meta.json()['dataset']['relatedTables']}")
-
-# Download specific table as CSV (API key provides higher rate limits)
-orders_csv = requests.get(
-    "https://analysthub.com/api/datasets/ecom-datamart/download?format=csv&table=ecom_orders",
-    headers=headers
-)
-with open('ecom_orders.csv', 'w') as f:
-    f.write(orders_csv.text)
-
-# Query with filters (requires API key)
-query_data = {
-    "table": "ecom_customers",
-    "filters": {"city": "New York"},
-    "limit": 1000,
-    "orderBy": "customer_id"
-}
-result = requests.post(
-    "https://analysthub.com/api/datasets/ecom-datamart/query",
-    json=query_data,
-    headers=headers
-)
-customers = result.json()['data']
-
-# Check rate limits
-remaining = result.headers.get('x-ratelimit-remaining')
-print(f"API calls remaining: {remaining}")`}
-                    </pre>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3 text-green-400">JavaScript/Node.js</h4>
-                  <div className="bg-gray-900 rounded-lg p-4">
-                    <pre className="text-sm text-gray-300 overflow-x-auto">
-{`const axios = require('axios');
-
-// Your API key
-const API_KEY = 'your_api_key_here';
-const headers = { 'Authorization': \`Bearer \${API_KEY}\` };
-
-// Fetch all datasets
-async function getDatasets() {
-  try {
-    const response = await axios.get(
-      'https://analysthub.com/api/datasets',
-      { headers }
-    );
-    console.log('Available datasets:', response.data.datasets);
-    
-    // Get education dataset details
-    const eduData = await axios.get(
-      'https://analysthub.com/api/datasets/education-datamart',
-      { headers }
-    );
-    console.log('Education tables:', eduData.data.dataset.relatedTables);
-    
-    // Query student data with filters (requires API key)
-    const studentQuery = {
-      table: "education_students",
-      filters: { grade_level: "10" },
-      limit: 500
-    };
-    
-    const students = await axios.post(
-      'https://analysthub.com/api/datasets/education-datamart/query',
-      studentQuery,
-      { headers }
-    );
-    
-    // Check rate limits
-    const remaining = students.headers['x-ratelimit-remaining'];
-    console.log(\`Query calls remaining: \${remaining}\`);
-    
-  } catch (error) {
-    if (error.response?.status === 401) {
-      console.error('Invalid API key. Please check your authentication.');
-    } else if (error.response?.status === 429) {
-      console.error('Rate limit exceeded:', error.response.data.error);
-    } else {
-      console.error('Error:', error.response?.data || error.message);
-    }
-  }
-}
-
-getDatasets();`}
-                    </pre>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3 text-green-400">R</h4>
-                  <div className="bg-gray-900 rounded-lg p-4">
-                    <pre className="text-sm text-gray-300 overflow-x-auto">
-{`library(httr)
-library(jsonlite)
-
-# Get datasets
-response <- GET("https://analysthub.com/api/datasets")
-datasets <- content(response, "parsed")
-
-# Download fitness data as CSV
-fitness_url <- "https://analysthub.com/api/datasets/fitness-datamart/download?format=csv&table=fitness_workouts"
-fitness_data <- read.csv(fitness_url)
-head(fitness_data)
-
-# Query entertainment data
-query_body <- list(
-  table = "music_plays",
-  filters = list(genre = "pop"),
-  limit = 1000,
-  orderBy = "play_count DESC"
-)
-
-music_response <- POST(
-  "https://analysthub.com/api/datasets/music-datamart/query",
-  body = query_body,
-  encode = "json"
-)
-
-music_data <- content(music_response, "parsed")
-print(paste("Found", length(music_data$data), "music plays"))`}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* API Connection Modal */}
@@ -1078,10 +795,10 @@ print(paste("Found", length(music_data$data), "music plays"))`}
             <div className="p-6 border-b border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold">{selectedDataset.name} - API Connection</h3>
+                  <h3 className="text-xl font-semibold">{selectedDataset?.name} - API Connection</h3>
                   <p className="text-sm text-gray-400 mt-1">
-                    {selectedDataset.type === 'datamart' 
-                      ? `Datamart with ${selectedDataset.tableCount} tables` 
+                    {selectedDataset?.type === 'datamart' 
+                      ? `Datamart with ${selectedDataset?.tableCount} tables` 
                       : 'Single table dataset'}
                   </p>
                 </div>
@@ -1103,12 +820,12 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                 <div className="space-y-2 text-sm">
                   <div className="bg-gray-800 p-3 rounded-lg">
                     <span className="text-gray-400">Base URL:</span>
-                    <code className="ml-2 text-green-400">https://analysthub.com/api/datasets/{selectedDataset.id}</code>
+                    <code className="ml-2 text-green-400">https://analysthub.com/api/datasets/{selectedDataset?.id}</code>
                   </div>
                   <div className="bg-gray-800 p-3 rounded-lg">
                     <span className="text-gray-400">Download:</span>
                     <code className="ml-2 text-green-400">
-                      /download{selectedDataset.type === 'datamart' ? '?format=xlsx' : '?format=csv'}
+                      /download{selectedDataset?.type === 'datamart' ? '?format=xlsx' : '?format=csv'}
                     </code>
                   </div>
                 </div>
@@ -1116,24 +833,41 @@ print(paste("Found", length(music_data$data), "music plays"))`}
 
               {/* Power BI Connection */}
               <div>
-                <h4 className="text-lg font-semibold mb-3 text-blue-400">🔷 Power BI Connection</h4>
+                <h4 className="text-lg font-semibold mb-3 text-blue-400">🔷 Power BI Connection (API Key Required)</h4>
                 <div className="bg-gray-800 p-4 rounded-lg">
+                  {!userApiKeys.length ? (
+                    <div className="p-3 bg-red-400/10 border border-red-400/20 rounded mb-3">
+                      <p className="text-sm text-red-400">⚠️ You need an API key to connect Power BI to this dataset. Generate one above first.</p>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-green-400/10 border border-green-400/20 rounded mb-3">
+                      <p className="text-sm text-green-400">✅ You have an API key. Follow the steps below to connect.</p>
+                    </div>
+                  )}
                   <p className="text-sm text-gray-300 mb-3">Connect to this dataset in Power BI:</p>
                   <div className="space-y-3">
                     <div>
                       <p className="text-xs text-gray-400 mb-1">1. In Power BI Desktop, select "Get Data" → "Web"</p>
                       <div className="bg-gray-900 p-2 rounded">
                         <code className="text-xs text-green-400">
-                          https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=csv
-                          {selectedDataset.type === 'datamart' && <span className="text-blue-400">&table=table_name</span>}
+                          https://analysthub.com/api/datasets/{selectedDataset?.id}/download?format=csv
+                          {selectedDataset?.type === 'datamart' && <span className="text-blue-400">&table=table_name</span>}
+                        </code>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">2. Click "Advanced" and add this header:</p>
+                      <div className="bg-gray-900 p-2 rounded">
+                        <code className="text-xs text-yellow-400">
+                          Authorization: Bearer {userApiKeys.length > 0 ? 'your_api_key_here' : 'GENERATE_API_KEY_FIRST'}
                         </code>
                       </div>
                     </div>
                     {selectedDataset.type === 'datamart' && (
                       <div>
-                        <p className="text-xs text-gray-400 mb-1">Available tables:</p>
+                        <p className="text-xs text-gray-400 mb-1">3. Available tables (create separate queries for each):</p>
                         <div className="flex flex-wrap gap-1">
-                          {selectedDataset.relatedTables?.map((table: string, index: number) => (
+                          {selectedDataset?.relatedTables?.map((table: string, index: number) => (
                             <span key={index} className="text-xs bg-blue-400/10 text-blue-400 px-2 py-1 rounded">
                               {table}
                             </span>
@@ -1142,8 +876,8 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                       </div>
                     )}
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">2. For multiple tables (datamarts), create separate queries for each table</p>
-                      <p className="text-xs text-gray-400">3. Use Power Query to establish relationships between tables</p>
+                      <p className="text-xs text-gray-400 mb-1">{selectedDataset?.type === 'datamart' ? '4' : '3'}. For multiple tables (datamarts), create separate queries for each table</p>
+                      <p className="text-xs text-gray-400">{selectedDataset?.type === 'datamart' ? '5' : '4'}. Use Power Query to establish relationships between tables</p>
                     </div>
                   </div>
                 </div>
@@ -1151,38 +885,64 @@ print(paste("Found", length(music_data$data), "music plays"))`}
 
               {/* Excel Connection */}
               <div>
-                <h4 className="text-lg font-semibold mb-3 text-green-400">📊 Excel Connection</h4>
+                <h4 className="text-lg font-semibold mb-3 text-green-400">📊 Excel Connection (API Key Required)</h4>
                 <div className="bg-gray-800 p-4 rounded-lg">
+                  {!userApiKeys.length ? (
+                    <div className="p-3 bg-red-400/10 border border-red-400/20 rounded mb-3">
+                      <p className="text-sm text-red-400">⚠️ You need an API key to connect Excel to this dataset. Generate one above first.</p>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-green-400/10 border border-green-400/20 rounded mb-3">
+                      <p className="text-sm text-green-400">✅ You have an API key. Follow the steps below to connect.</p>
+                    </div>
+                  )}
                   <p className="text-sm text-gray-300 mb-3">Import data into Excel:</p>
                   <div className="space-y-3">
-                    {selectedDataset.type === 'datamart' ? (
+                    {selectedDataset?.type === 'datamart' ? (
                       <>
                         <div>
                           <p className="text-xs text-gray-400 mb-1"><strong>Option 1:</strong> Download complete datamart as Excel file</p>
-                          <div className="bg-gray-900 p-2 rounded">
+                          <div className="bg-gray-900 p-2 rounded mb-2">
                             <code className="text-xs text-green-400">
-                              https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=xlsx
+                              https://analysthub.com/api/datasets/{selectedDataset?.id}/download?format=xlsx
                             </code>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">This gives you all {selectedDataset.tableCount} tables as separate sheets</p>
+                          <div className="bg-gray-900 p-2 rounded">
+                            <code className="text-xs text-yellow-400">
+                              Authorization: Bearer {userApiKeys.length > 0 ? 'your_api_key_here' : 'GENERATE_API_KEY_FIRST'}
+                            </code>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">This gives you all {selectedDataset?.tableCount} tables as separate sheets</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-400 mb-1"><strong>Option 2:</strong> Import specific tables via Data → From Web</p>
-                          <div className="bg-gray-900 p-2 rounded">
+                          <div className="bg-gray-900 p-2 rounded mb-2">
                             <code className="text-xs text-green-400">
-                              https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=csv&table=table_name
+                              https://analysthub.com/api/datasets/{selectedDataset?.id}/download?format=csv&table=table_name
                             </code>
                           </div>
+                          <div className="bg-gray-900 p-2 rounded">
+                            <code className="text-xs text-yellow-400">
+                              Authorization: Bearer {userApiKeys.length > 0 ? 'your_api_key_here' : 'GENERATE_API_KEY_FIRST'}
+                            </code>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Add this header in Excel's Advanced options</p>
                         </div>
                       </>
                     ) : (
                       <div>
                         <p className="text-xs text-gray-400 mb-1">Go to Data → From Web and use this URL:</p>
-                        <div className="bg-gray-900 p-2 rounded">
+                        <div className="bg-gray-900 p-2 rounded mb-2">
                           <code className="text-xs text-green-400">
-                            https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=csv
+                            https://analysthub.com/api/datasets/{selectedDataset?.id}/download?format=csv
                           </code>
                         </div>
+                        <div className="bg-gray-900 p-2 rounded">
+                          <code className="text-xs text-yellow-400">
+                            Authorization: Bearer {userApiKeys.length > 0 ? 'your_api_key_here' : 'GENERATE_API_KEY_FIRST'}
+                          </code>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Add this header in Excel's Advanced options</p>
                       </div>
                     )}
                   </div>
@@ -1191,28 +951,46 @@ print(paste("Found", length(music_data$data), "music plays"))`}
 
               {/* Python/R Connection */}
               <div>
-                <h4 className="text-lg font-semibold mb-3 text-yellow-400">🐍 Python/R Connection</h4>
+                <h4 className="text-lg font-semibold mb-3 text-yellow-400">🐍 Python/R Connection (API Key Required)</h4>
                 <div className="bg-gray-800 p-4 rounded-lg">
+                  {!userApiKeys.length ? (
+                    <div className="p-3 bg-red-400/10 border border-red-400/20 rounded mb-3">
+                      <p className="text-sm text-red-400">⚠️ You need an API key to connect Python/R to this dataset. Generate one above first.</p>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-green-400/10 border border-green-400/20 rounded mb-3">
+                      <p className="text-sm text-green-400">✅ You have an API key. Use the examples below to connect.</p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs text-gray-400 mb-2">Python (pandas):</p>
+                      <p className="text-xs text-gray-400 mb-2">Python (requests):</p>
                       <div className="bg-gray-900 p-2 rounded">
                         <code className="text-xs text-gray-300">
+                          import requests<br/>
                           import pandas as pd<br/>
-                          df = pd.read_csv('<br/>
-                          &nbsp;&nbsp;'https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=csv'<br/>
-                          )
+                          <br/>
+                          headers = {'{'}'"Authorization": "Bearer {userApiKeys.length > 0 ? 'your_api_key' : 'GENERATE_KEY_FIRST'}"{'}'}<br/>
+                          response = requests.get(<br/>
+                          &nbsp;&nbsp;'https://analysthub.com/api/datasets/{selectedDataset?.id}/download?format=csv',<br/>
+                          &nbsp;&nbsp;headers=headers<br/>
+                          )<br/>
+                          df = pd.read_csv(StringIO(response.text))
                         </code>
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400 mb-2">R:</p>
+                      <p className="text-xs text-gray-400 mb-2">R (httr):</p>
                       <div className="bg-gray-900 p-2 rounded">
                         <code className="text-xs text-gray-300">
+                          library(httr)<br/>
                           library(readr)<br/>
-                          df &lt;- read_csv(<br/>
-                          &nbsp;&nbsp;'https://analysthub.com/api/datasets/{selectedDataset.id}/download?format=csv'<br/>
-                          )
+                          <br/>
+                          response &lt;- GET(<br/>
+                          &nbsp;&nbsp;'https://analysthub.com/api/datasets/{selectedDataset?.id}/download?format=csv',<br/>
+                          &nbsp;&nbsp;add_headers(Authorization = 'Bearer {userApiKeys.length > 0 ? 'your_api_key' : 'GENERATE_KEY_FIRST'}')<br/>
+                          )<br/>
+                          df &lt;- read_csv(content(response, 'text'))
                         </code>
                       </div>
                     </div>
@@ -1224,7 +1002,7 @@ print(paste("Found", length(music_data$data), "music plays"))`}
               <div className="flex gap-3 pt-4 border-t border-gray-700">
                 <button
                   onClick={() => {
-                    const url = `https://analysthub.com/api/datasets/${selectedDataset.id}/download?format=${selectedDataset.type === 'datamart' ? 'xlsx' : 'csv'}`
+                    const url = `https://analysthub.com/api/datasets/${selectedDataset?.id}/download?format=${selectedDataset?.type === 'datamart' ? 'xlsx' : 'csv'}`
                     navigator.clipboard.writeText(url)
                     alert('Primary download URL copied to clipboard!')
                   }}
@@ -1234,7 +1012,7 @@ print(paste("Found", length(music_data$data), "music plays"))`}
                 </button>
                 <button
                   onClick={() => {
-                    const baseUrl = `https://analysthub.com/api/datasets/${selectedDataset.id}`
+                    const baseUrl = `https://analysthub.com/api/datasets/${selectedDataset?.id}`
                     navigator.clipboard.writeText(baseUrl)
                     alert('Base API URL copied to clipboard!')
                   }}

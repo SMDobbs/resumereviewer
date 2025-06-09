@@ -48,7 +48,7 @@ export default function WhyAnalystHubWorks() {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="text-green-400 mr-3 mt-1">✓</span>
-                <span className="text-gray-300">Clear learning paths for SQL, Python & tools</span>
+                <span className="text-gray-300">Strategic skill development guidance</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-400 mr-3 mt-1">✓</span>

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { ConnectionPool } from 'mssql'
+import { extractApiKey, validateApiKey } from '@/lib/api-keys'
+import { apiGeneralLimiter, createRateLimitHeaders } from '@/lib/rate-limit'
 
 // Azure SQL connection configuration
 const azureConfig = {
@@ -16,9 +18,57 @@ const azureConfig = {
 }
 
 // Get list of available tables/datasets
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
   try {
-    // No API key required for listing datasets - users should be able to browse
+    // Check if this is an internal webapp request or external API call
+    const userAgent = request.headers.get('user-agent') || ''
+    const referer = request.headers.get('referer') || ''
+    const isInternalRequest = referer.includes(process.env.NEXT_PUBLIC_BASE_URL || 'localhost') || 
+                             userAgent.includes('Next.js') ||
+                             request.headers.get('x-forwarded-for') === null // Same-origin request
+
+    // For external API calls, require authentication
+    if (!isInternalRequest) {
+      const apiKey = extractApiKey(request)
+      if (!apiKey) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'API key required for external access. Include your API key in the Authorization header as "Bearer your_api_key" or in the X-API-Key header.',
+            hint: 'Generate an API key at /tools/data-export'
+          },
+          { status: 401 }
+        )
+      }
+
+      const validatedKey = await validateApiKey(apiKey)
+      if (!validatedKey) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Invalid or inactive API key. Please check your API key or generate a new one.' 
+          },
+          { status: 401 }
+        )
+      }
+
+      // Apply rate limiting for external requests
+      const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey)
+      if (!rateLimitResult.allowed) {
+        const headers = createRateLimitHeaders(rateLimitResult)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Rate limit exceeded. Please wait before making more requests.',
+            retryAfter: rateLimitResult.retryAfter
+          },
+          { 
+            status: 429,
+            headers 
+          }
+        )
+      }
+    }
 
     // Organized by prefixes as datamarts and standalone tables
     const datasets = [
@@ -206,16 +256,41 @@ export async function GET(_request: Request) {
       // Continue without metadata - don't block users from seeing datasets
     }
     
-    return NextResponse.json({
+    // Prepare response based on request type
+    const responseData: any = {
       success: true,
       datasets,
       meta: {
         totalDatasets: datasets.length,
         datamarts: datasets.filter(d => d.type === 'datamart').length,
         tables: datasets.filter(d => d.type === 'table').length
-      },
-      note: "Datasets are freely browsable. Generate an API key for programmatic access with higher rate limits."
-    })
+      }
+    }
+
+    let responseHeaders = new Headers()
+
+    if (!isInternalRequest) {
+      // External API request - include usage and rate limit info
+      const apiKey = extractApiKey(request)
+      const validatedKey = await validateApiKey(apiKey!)
+      const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey!)
+      
+      responseData.usage = {
+        apiKey: validatedKey!.name,
+        requestCount: validatedKey!.usageCount,
+        rateLimit: {
+          remaining: rateLimitResult.remaining,
+          resetTime: rateLimitResult.resetTime
+        }
+      }
+      responseData.note = "External API access requires authentication."
+      responseHeaders = createRateLimitHeaders(rateLimitResult)
+    } else {
+      // Internal webapp request
+      responseData.note = "Datasets displayed for browsing. API access requires authentication."
+    }
+
+    return NextResponse.json(responseData, { headers: responseHeaders })
 
   } catch (error) {
     console.error('Error fetching datasets:', error)

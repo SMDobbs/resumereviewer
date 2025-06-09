@@ -52,12 +52,12 @@ const Navigation = () => {
   const authenticatedNavItems = [
     { href: '/dashboard', label: 'Dashboard' },
     { 
-      label: 'Learn',
+      label: 'Resources',
       isDropdown: true,
       dropdownItems: [
         { href: '/articles', label: 'Articles', icon: DocumentTextIcon, description: 'Weekly analytics insights' },
         { href: '/guides', label: 'Premium Guides', icon: BookOpenIcon, description: 'In-depth career guides' },
-        { href: '/resources', label: 'Free Resources', icon: FolderIcon, description: 'Templates & tools' },
+        { href: '/resources', label: 'Templates', icon: FolderIcon, description: 'Resume templates & tools' },
       ]
     },
     { href: '/tools', label: 'Tools', icon: SparklesIcon },

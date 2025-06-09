@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeftIcon, ClockIcon, TagIcon, ShareIcon, BookmarkIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, ClockIcon, TagIcon } from '@heroicons/react/24/outline'
 
 export default function AnalyticsRoleTipsArticle() {
   return (

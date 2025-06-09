@@ -85,12 +85,29 @@ export async function GET(
       )
     }
 
-    // Check if this is an API request (has API key) or direct download
+    // Check if this is an internal webapp request or external API call
+    const userAgent = request.headers.get('user-agent') || ''
+    const referer = request.headers.get('referer') || ''
+    const isInternalRequest = referer.includes(process.env.NEXT_PUBLIC_BASE_URL || 'localhost') || 
+                             userAgent.includes('Next.js') ||
+                             request.headers.get('x-forwarded-for') === null // Same-origin request
+
     const apiKey = extractApiKey(request)
     const clientIP = getClientIP(request)
     
-    if (apiKey) {
-      // API-based download - validate API key and use API rate limits
+    // For external API calls (Excel, Power BI, Python, etc.), require API key
+    if (!isInternalRequest) {
+      if (!apiKey) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'API key required for external access (Excel, Power BI, Python, etc.). Include your API key in the Authorization header as "Bearer your_api_key" or in the X-API-Key header.',
+            hint: 'Generate an API key at /tools/data-export. Web UI downloads work without keys.'
+          },
+          { status: 401 }
+        )
+      }
+
       const validatedKey = await validateApiKey(apiKey)
       if (!validatedKey) {
         return NextResponse.json(
@@ -102,7 +119,7 @@ export async function GET(
         )
       }
 
-      // Apply API rate limiting (more generous)
+      // Apply API rate limiting for external access
       const rateLimitResult = await apiGeneralLimiter.checkLimit(apiKey)
       if (!rateLimitResult.allowed) {
         const headers = createRateLimitHeaders(rateLimitResult)
@@ -123,9 +140,8 @@ export async function GET(
           }
         )
       }
-    } else {
-      // Direct download - apply strict download rate limits
-      // Check both burst and hourly limits
+    } else if (!apiKey) {
+      // Internal webapp download without API key - apply strict rate limits
       const burstLimitResult = await downloadBurstLimiter.checkLimit(clientIP)
       const hourlyLimitResult = await downloadLimiter.checkLimit(clientIP)
       
@@ -134,7 +150,7 @@ export async function GET(
         return NextResponse.json(
           { 
             success: false, 
-            error: 'Download rate limit exceeded. You can only download 3 files every 15 minutes. Please wait or use the API for more frequent access.',
+            error: 'Download rate limit exceeded. You can only download 3 files every 15 minutes. Please wait or generate an API key for higher limits.',
             retryAfter: burstLimitResult.retryAfter,
             limits: {
               type: 'download_burst',
@@ -142,7 +158,7 @@ export async function GET(
               windowMs: 900000, // 15 minutes
               remaining: burstLimitResult.remaining
             },
-            suggestion: 'For frequent data access, generate an API key which has higher rate limits.'
+            suggestion: 'Generate an API key for higher rate limits and external tool access.'
           },
           { 
             status: 429,
@@ -156,7 +172,7 @@ export async function GET(
         return NextResponse.json(
           { 
             success: false, 
-            error: 'Daily download limit exceeded. You can only download 10 files per hour. Please wait or use the API for more frequent access.',
+            error: 'Daily download limit exceeded. You can only download 10 files per hour. Please wait or generate an API key for higher limits.',
             retryAfter: hourlyLimitResult.retryAfter,
             limits: {
               type: 'download_hourly',
@@ -164,7 +180,7 @@ export async function GET(
               windowMs: 3600000, // 1 hour
               remaining: hourlyLimitResult.remaining
             },
-            suggestion: 'For frequent data access, generate an API key which has higher rate limits.'
+            suggestion: 'Generate an API key for higher rate limits and external tool access.'
           },
           { 
             status: 429,

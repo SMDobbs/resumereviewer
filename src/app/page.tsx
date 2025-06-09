@@ -2,7 +2,6 @@
 
 import HeroSection from '@/components/landing/HeroSection'
 import WhyAnalystHubWorks from '@/components/landing/WhyAnalystHubWorks'
-import RecommendedResources from '@/components/landing/CoursePreview'
 import FeaturesSection from '@/components/landing/FeaturesSection'
 import PricingSection from '@/components/landing/PricingSection'
 import SuccessStories from '@/components/landing/SuccessStories'
@@ -14,41 +13,50 @@ import MeetTheTeam from '@/components/landing/MeetTheTeam'
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <div id="home">
+      {/* Hero Section */}
+      <div id="home" className="bg-gradient-to-b from-gray-950 to-gray-900">
         <HeroSection />
       </div>
-      <div className="section-divider"></div>
-      <div id="about" className="bg-gray-900/50">
+      
+      {/* About Section */}
+      <div id="about" className="bg-gradient-to-b from-gray-900 to-slate-900">
         <WhyAnalystHubWorks />
       </div>
-      <div className="section-divider"></div>
-      <div id="features" className="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+      
+      {/* Features Section */}
+      <div id="features" className="bg-gradient-to-b from-slate-900 to-gray-950">
         <FeaturesSection />
       </div>
-      <div className="section-divider"></div>
-      <div id="resources" className="bg-gray-900/30">
-        <RecommendedResources />
-      </div>
-      <div className="section-divider"></div>
-      <div id="pricing">
+      
+      {/* Pricing Section */}
+      <div id="pricing" className="bg-gradient-to-b from-gray-950 to-gray-900">
         <PricingSection />
       </div>
-      <div className="section-divider"></div>
-      <MeetTheTeam />
-      <div className="section-divider"></div>
-      <div id="success" className="bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900">
+      
+      {/* Meet the Team */}
+      <div className="bg-gradient-to-b from-gray-900 to-slate-900">
+        <MeetTheTeam />
+      </div>
+      
+      {/* Success Stories */}
+      <div id="success" className="bg-gradient-to-b from-slate-900 to-gray-950">
         <SuccessStories />
       </div>
-      <div className="section-divider"></div>
-      <div id="testimonials" className="bg-gray-900/50">
+      
+      {/* Testimonials */}
+      <div id="testimonials" className="bg-gradient-to-b from-gray-950 to-slate-900">
         <TestimonialsSection />
       </div>
-      <div className="section-divider"></div>
-      <div id="faq" className="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+      
+      {/* FAQ Section */}
+      <div id="faq" className="bg-gradient-to-b from-slate-900 to-gray-950">
         <FAQSection />
       </div>
-      <div className="section-divider"></div>
-      <CTASection />
+      
+      {/* CTA Section */}
+      <div className="bg-gray-950">
+        <CTASection />
+      </div>
     </div>
   )
 }

@@ -125,55 +125,55 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Learning Resources */}
+        {/* Career Resources */}
         <div className="mb-12">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <h2 className="text-2xl font-bold flex items-center">
-              <BookOpenIcon className="h-6 w-6 text-green-400 mr-3" />
-              Learning Resources
+              <DocumentTextIcon className="h-6 w-6 text-green-400 mr-3" />
+              Career Resources
             </h2>
-            <Link href="/learning" className="text-green-400 hover:text-green-300 flex items-center">
-              View All Learning Paths <ArrowRightIcon className="h-4 w-4 ml-1" />
+            <Link href="/resources" className="text-green-400 hover:text-green-300 flex items-center">
+              View All Resources <ArrowRightIcon className="h-4 w-4 ml-1" />
             </Link>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Featured Learning Paths */}
+            {/* Featured Resources */}
             <div className="glass rounded-xl p-6 h-full">
-              <h3 className="text-xl font-semibold mb-4">Featured Learning Paths</h3>
+              <h3 className="text-xl font-semibold mb-4">Resume Templates</h3>
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
-                    <h4 className="font-medium">SQL Mastery for Analysts</h4>
-                    <p className="text-sm text-gray-400">12 weeks • 8 modules</p>
+                    <h4 className="font-medium">Lead Data Analyst Resume</h4>
+                    <p className="text-sm text-gray-400">Professional template • PDF format</p>
                   </div>
-                  <div className="flex items-center text-yellow-400">
-                    <StarIcon className="h-4 w-4 mr-1" />
-                    <span className="text-sm">4.9</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium">Python for Data Analytics</h4>
-                    <p className="text-sm text-gray-400">10 weeks • 10 modules</p>
-                  </div>
-                  <div className="flex items-center text-yellow-400">
-                    <StarIcon className="h-4 w-4 mr-1" />
-                    <span className="text-sm">4.8</span>
+                  <div className="flex items-center text-green-400">
+                    <CloudArrowDownIcon className="h-4 w-4 mr-1" />
+                    <span className="text-sm">Available</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
-                    <h4 className="font-medium">Executive Communication</h4>
-                    <p className="text-sm text-gray-400">6 weeks • 6 modules</p>
+                    <h4 className="font-medium">Entry-Level Analytics Resume</h4>
+                    <p className="text-sm text-gray-400">Skills-based format • Career changers</p>
+                  </div>
+                  <div className="flex items-center text-blue-400">
+                    <ClockIcon className="h-4 w-4 mr-1" />
+                    <span className="text-sm">Coming Soon</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Analytics Manager Resume</h4>
+                    <p className="text-sm text-gray-400">Leadership focus • Director level</p>
                   </div>
                   <div className="flex items-center text-yellow-400">
-                    <StarIcon className="h-4 w-4 mr-1" />
-                    <span className="text-sm">4.9</span>
+                    <ClockIcon className="h-4 w-4 mr-1" />
+                    <span className="text-sm">Coming Soon</span>
                   </div>
                 </div>
               </div>
-              <Link href="/learning" className="btn-primary w-full">
-                Explore Learning Paths
+              <Link href="/resources" className="btn-primary w-full">
+                Browse All Templates
               </Link>
             </div>
 
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                   </p>
                   <div className="flex items-center text-xs text-gray-500">
                     <ClockIcon className="h-3 w-3 mr-1" />
-                    4 min read • today
+                    4 min read • 06-07-2025
                   </div>
                 </article>
               </div>
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                   <p className="text-white font-medium capitalize">{user.role.toLowerCase()}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Subscription</label>
+                  <label className="text-sm text-gray-400">Membership</label>
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-green-400 text-gray-900 border border-green-400">
                     <SparklesIcon className="h-4 w-4 mr-1" />
                     PREMIUM
@@ -351,12 +351,12 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-400">Browse all analytics tools</p>
               </Link>
               
-              <Link href="/learning" className="block p-4 border border-purple-400/20 rounded-lg hover:bg-purple-400/10 transition-colors">
+              <Link href="/resources" className="block p-4 border border-purple-400/20 rounded-lg hover:bg-purple-400/10 transition-colors">
                 <div className="flex items-center mb-2">
-                  <BookOpenIcon className="h-5 w-5 text-purple-400 mr-3" />
-                  <h4 className="font-semibold text-purple-400">Start Learning</h4>
+                  <DocumentTextIcon className="h-5 w-5 text-purple-400 mr-3" />
+                  <h4 className="font-semibold text-purple-400">Get Templates</h4>
                 </div>
-                <p className="text-sm text-gray-400">Browse learning paths</p>
+                <p className="text-sm text-gray-400">Download resume templates</p>
               </Link>
               
               <Link href="/articles" className="block p-4 border border-yellow-400/20 rounded-lg hover:bg-yellow-400/10 transition-colors">
