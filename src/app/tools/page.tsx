@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { SparklesIcon, DocumentTextIcon, ChartBarIcon, LockClosedIcon, CheckIcon, CloudArrowDownIcon, TrophyIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, DocumentTextIcon, ChartBarIcon, LockClosedIcon, CheckIcon, CloudArrowDownIcon, TrophyIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, CommandLineIcon } from '@heroicons/react/24/outline'
 import { useUser } from '@/lib/context/UserContext'
 import { useState, useEffect, useCallback } from 'react'
 
@@ -96,6 +96,24 @@ export default function ToolsPage() {
       premium: true,
       available: true,
       route: "/tools/data-export"
+    },
+    {
+      id: 3,
+      title: "SQLPractice.io",
+      description: "Master SQL with hands-on practice. Interactive challenges, database playgrounds, and portfolio projects to showcase your SQL skills to employers.",
+      icon: CommandLineIcon,
+      features: [
+        "50+ interactive SQL challenges",
+        "Real database environments",
+        "Portfolio project builder",
+        "Progress tracking & certificates",
+        "Beginner to advanced levels",
+        "Industry-standard SQL dialects",
+        "FREE access with code: analysthubusers"
+      ],
+      premium: true,
+      available: true,
+      route: "https://sqlpractice.io"
     },
     {
       id: 4,
@@ -291,7 +309,7 @@ export default function ToolsPage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold mb-1">{tool.title}</h3>
-                      <div className="flex items-center">
+                      <div className="flex items-center gap-2">
                         {tool.premium ? (
                           <div className="flex items-center">
                             <SparklesIcon className="h-4 w-4 text-green-400 mr-1" />
@@ -299,6 +317,11 @@ export default function ToolsPage() {
                           </div>
                         ) : (
                           <span className="text-sm font-bold text-green-400">FREE</span>
+                        )}
+                        {tool.id === 3 && (
+                          <span className="text-xs bg-yellow-400 text-gray-900 px-2 py-1 rounded-full font-bold">
+                            FREE ACCESS
+                          </span>
                         )}
                       </div>
                     </div>
@@ -309,6 +332,33 @@ export default function ToolsPage() {
                 </div>
 
                 <p className="text-gray-400 mb-5 leading-relaxed">{tool.description}</p>
+
+                {/* Special promo box for SQLPractice.io */}
+                {tool.id === 3 && (
+                  <div className="bg-gradient-to-r from-yellow-400/10 to-orange-400/10 border border-yellow-400/30 rounded-lg p-4 mb-5">
+                    <div className="flex items-center mb-2">
+                      <SparklesIcon className="h-5 w-5 text-yellow-400 mr-2" />
+                      <h4 className="text-sm font-bold text-yellow-400">Exclusive for AnalystHub Users</h4>
+                    </div>
+                    <p className="text-sm text-gray-300 mb-2">
+                      Get completely FREE access to SQLPractice.io (normally $9.99)
+                    </p>
+                    <div className="bg-gray-900 rounded-md p-3 border border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-gray-400 mb-1">Promo Code:</p>
+                          <code className="text-green-400 font-mono font-bold text-sm">analysthubusers</code>
+                        </div>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText('analysthubusers')}
+                          className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Features - Compact but readable */}
                 <div className="flex-1 mb-6">
@@ -333,12 +383,23 @@ export default function ToolsPage() {
                       Upgrade to Access
                     </Link>
                   ) : tool.available ? (
-                    <Link 
-                      href={tool.route}
-                      className="w-full px-4 py-3 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center font-medium"
-                    >
-                      Launch Tool
-                    </Link>
+                    tool.route.startsWith('http') ? (
+                      <a 
+                        href={tool.route}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full px-4 py-3 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center font-medium inline-block"
+                      >
+                        Launch Tool
+                      </a>
+                    ) : (
+                      <Link 
+                        href={tool.route}
+                        className="w-full px-4 py-3 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors text-center font-medium"
+                      >
+                        Launch Tool
+                      </Link>
+                    )
                   ) : (
                     <div className="w-full px-4 py-3 bg-gray-800 text-gray-500 rounded-lg text-center cursor-not-allowed font-medium">
                       Coming Soon

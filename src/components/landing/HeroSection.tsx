@@ -1,7 +1,17 @@
+'use client'
+
 import Link from 'next/link'
+import { useUser } from '@/lib/context/UserContext'
 import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 
 export default function HeroSection() {
+  const { user } = useUser()
+  
+  // Determine where to send users based on auth state
+  const getStartLink = () => {
+    return user ? '/tools' : '/signup'
+  }
+  
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-green-950 min-h-screen flex items-center">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-from)_0%,_transparent_50%)] from-green-400/20"></div>
@@ -17,8 +27,8 @@ export default function HeroSection() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Link href="/tools" className="btn-primary inline-flex items-center">
-              Start Your Journey
+            <Link href={getStartLink()} className="btn-primary inline-flex items-center">
+              {user ? 'Start Your Journey' : 'Get Started Today'}
               <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>
             <Link href="/articles" className="px-6 py-3 border border-green-400 text-green-400 rounded-lg hover:bg-green-400/10 transition-colors">
@@ -42,24 +52,11 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-400">500+</div>
-              <div className="text-gray-400">People Helped</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-400">90%</div>
-              <div className="text-gray-400">Land Interviews</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-400">30 Days</div>
-              <div className="text-gray-400">Avg. Time to Offer</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-400">$65k+</div>
-              <div className="text-gray-400">Starting Salaries</div>
-            </div>
+          {/* Value Proposition */}
+          <div className="text-center">
+            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+              From resume optimization to SQL practice and interview preparation - everything you need to land your first analytics role with confidence.
+            </p>
           </div>
         </div>
       </div>

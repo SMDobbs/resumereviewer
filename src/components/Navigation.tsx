@@ -12,10 +12,16 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pathname = usePathname()
   const router = useRouter()
   const { user, loading, logout } = useUser()
+
+  // Prevent hydration mismatch by only showing auth-dependent content after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Handle scroll effect
   useEffect(() => {
@@ -64,7 +70,8 @@ const Navigation = () => {
     { href: '/coaching', label: 'Coaching', icon: UserGroupIcon },
   ]
 
-  const navItems = isLandingPage ? landingNavItems : authenticatedNavItems
+  // Use landing nav items until mounted to prevent hydration mismatch
+  const navItems = isLandingPage || !mounted ? landingNavItems : authenticatedNavItems
 
   const isActive = (href: string) => pathname === href
 
@@ -201,7 +208,7 @@ const Navigation = () => {
 
             {/* Auth Buttons / User Menu */}
             <div className="flex items-center space-x-3 ml-6">
-              {loading ? (
+              {!mounted || loading ? (
                 <div className="w-9 h-9 bg-gray-800 animate-pulse rounded-full"></div>
               ) : user ? (
                 <div className="flex items-center space-x-4">
@@ -279,7 +286,7 @@ const Navigation = () => {
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-4">
             {/* Mobile Auth Buttons / User Avatar */}
-            {loading ? (
+            {!mounted || loading ? (
               <div className="w-8 h-8 bg-gray-800 animate-pulse rounded-full"></div>
             ) : user ? (
               <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center">
@@ -379,7 +386,7 @@ const Navigation = () => {
               ))}
               
               {/* Mobile Auth Section */}
-              {loading ? (
+              {!mounted || loading ? (
                 <div className="mt-6 pt-4 border-t border-gray-800/50">
                   <div className="animate-pulse">
                     <div className="h-4 bg-gray-800 rounded w-24 mb-2"></div>

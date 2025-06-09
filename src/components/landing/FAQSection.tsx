@@ -9,7 +9,7 @@ export default function FAQSection() {
   const faqs = [
     {
       question: "What's included in the Full Access Pass?",
-      answer: "Your one-time purchase includes lifetime access to all career articles, industry insights, downloadable resume templates, career frameworks, and strategic guidance. You get comprehensive resources for breaking into analytics, advancing your career, and navigating different industry sectors based on real Fortune 100 experience."
+      answer: "Your one-time purchase includes lifetime access to all career articles, industry insights, downloadable resume templates, career frameworks, strategic guidance, PLUS free access to SQLPractice.io (normally $9.99). You get comprehensive resources for breaking into analytics, advancing your career, and navigating different industry sectors based on real Fortune 100 experience."
     },
     {
       question: "Do you provide actual courses or just recommendations?",

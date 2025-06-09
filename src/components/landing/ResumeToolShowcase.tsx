@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useUser } from '@/lib/context/UserContext'
 import { 
   DocumentTextIcon, 
   SparklesIcon, 
@@ -11,6 +14,27 @@ import {
 } from '@heroicons/react/24/outline'
 
 export default function ResumeToolShowcase() {
+  const { user, loading } = useUser()
+  
+  // Determine button text and link based on user state
+  const getButtonConfig = () => {
+    if (loading) {
+      return { text: 'Loading...', href: '#', disabled: true }
+    }
+    
+    if (!user) {
+      return { text: 'Get Started Free', href: '/signup', disabled: false }
+    }
+    
+    if (user.subscriptionStatus === 'PREMIUM') {
+      return { text: 'Analyze My Resume', href: '/resume-reviewer', disabled: false }
+    }
+    
+    return { text: 'Upgrade to Premium', href: '/dashboard', disabled: false }
+  }
+  
+  const buttonConfig = getButtonConfig()
+  
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -85,22 +109,34 @@ export default function ResumeToolShowcase() {
               </div>
             </div>
 
-            {/* CTA Button */}
+                        {/* CTA Button */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
-                href="/resume-reviewer" 
-                className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-400 to-green-500 text-gray-900 font-bold rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-400/25"
+                href={buttonConfig.href}
+                className={`group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-400 to-green-500 text-gray-900 font-bold rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-400/25 ${
+                  buttonConfig.disabled ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                onClick={buttonConfig.disabled ? (e) => e.preventDefault() : undefined}
               >
                 <span className="relative z-10 flex items-center">
-                  Analyze My Resume Now
-                  <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  {buttonConfig.text}
+                  {!buttonConfig.disabled && (
+                    <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  )}
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-green-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </Link>
               
               <div className="flex items-center text-sm text-gray-400">
-                <CheckCircleIcon className="h-4 w-4 text-green-400 mr-2" />
-                <span>No signup required • Instant results</span>
+                <SparklesIcon className="h-4 w-4 text-green-400 mr-2" />
+                <span>
+                  {!user 
+                    ? 'Start with $19.99 one-time payment' 
+                    : user.subscriptionStatus === 'PREMIUM' 
+                      ? 'Premium feature • Ready to use'
+                      : 'Premium feature • Upgrade required'
+                  }
+                </span>
               </div>
             </div>
           </div>

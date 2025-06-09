@@ -2,6 +2,7 @@
 
 import HeroSection from '@/components/landing/HeroSection'
 import ResumeToolShowcase from '@/components/landing/ResumeToolShowcase'
+import SQLPracticeShowcase from '@/components/landing/SQLPracticeShowcase'
 import WhyAnalystHubWorks from '@/components/landing/WhyAnalystHubWorks'
 import FeaturesSection from '@/components/landing/FeaturesSection'
 import PricingSection from '@/components/landing/PricingSection'
@@ -24,8 +25,13 @@ export default function Home() {
         <ResumeToolShowcase />
       </div>
       
+      {/* SQL Practice Platform Showcase */}
+      <div className="bg-gradient-to-b from-gray-900 via-gray-950 to-slate-900">
+        <SQLPracticeShowcase />
+      </div>
+      
       {/* About Section */}
-      <div id="about" className="bg-gradient-to-b from-gray-900 to-slate-900">
+      <div id="about" className="bg-gradient-to-b from-slate-900 to-gray-900">
         <WhyAnalystHubWorks />
       </div>
       
