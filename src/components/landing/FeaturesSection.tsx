@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useUser } from '@/lib/context/UserContext'
-import { ArrowRightIcon, SparklesIcon, BookOpenIcon, UserGroupIcon, ChartBarIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, SparklesIcon, BookOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline'
 
 export default function FeaturesSection() {
   const { user } = useUser()
@@ -26,7 +26,7 @@ export default function FeaturesSection() {
         </div>
 
         {/* Main Offerings Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* Premium Tools */}
           <div className="glass rounded-xl p-8">
             <div className="w-14 h-14 bg-purple-400/20 rounded-lg flex items-center justify-center mb-6">
@@ -40,7 +40,7 @@ export default function FeaturesSection() {
               </li>
               <li className="flex items-start">
                 <span className="text-green-400 mr-2 mt-1">✓</span>
-                <span className="text-gray-300">LinkedIn Profile Optimizer</span>
+                <span className="text-gray-300">Data Export & API Access</span>
               </li>
               <li className="flex items-start">
                 <span className="text-green-400 mr-2 mt-1">✓</span>
@@ -48,46 +48,11 @@ export default function FeaturesSection() {
               </li>
               <li className="flex items-start">
                 <span className="text-green-400 mr-2 mt-1">✓</span>
-                <span className="text-gray-300">AI Mock Interviewer</span>
+                <span className="text-gray-300">Portfolio Project Data</span>
               </li>
             </ul>
             <Link href={getPremiumLink('/tools')} className="btn-primary inline-flex items-center w-full justify-center">
               {user ? 'Access Premium Tools' : 'Get Started Now'}
-              <ArrowRightIcon className="ml-2 h-5 w-5" />
-            </Link>
-          </div>
-
-          {/* SQL Practice Platform */}
-          <div className="glass rounded-xl p-8 border-2 border-green-400/30">
-            <div className="w-14 h-14 bg-green-400/20 rounded-lg flex items-center justify-center mb-6">
-              <ChartBarIcon className="h-8 w-8 text-green-400" />
-            </div>
-            <h3 className="text-2xl font-bold mb-4">SQL Practice Platform</h3>
-            <div className="flex items-center mb-4">
-              <span className="text-sm bg-green-400/20 text-green-400 px-3 py-1 rounded-full">
-                FREE with Premium ($9.99 value)
-              </span>
-            </div>
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start">
-                <span className="text-green-400 mr-2 mt-1">✓</span>
-                <span className="text-gray-300">Interactive SQL practice questions</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-400 mr-2 mt-1">✓</span>
-                <span className="text-gray-300">Real database playgrounds</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-400 mr-2 mt-1">✓</span>
-                <span className="text-gray-300">Portfolio builder tools</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-400 mr-2 mt-1">✓</span>
-                <span className="text-gray-300">Progress tracking</span>
-              </li>
-            </ul>
-            <Link href={getPremiumLink('https://sqlpractice.io')} className="btn-primary inline-flex items-center w-full justify-center">
-              {user ? 'Access SQL Practice' : 'Get Started Now'}
               <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>
           </div>
