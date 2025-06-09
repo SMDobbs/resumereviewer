@@ -257,7 +257,24 @@ export async function GET(request: Request) {
     }
     
     // Prepare response based on request type
-    const responseData: any = {
+    const responseData: {
+      success: boolean;
+      datasets: typeof datasets;
+      meta: {
+        totalDatasets: number;
+        datamarts: number;
+        tables: number;
+      };
+      usage?: {
+        apiKey: string;
+        requestCount: number;
+        rateLimit: {
+          remaining: number;
+          resetTime: number;
+        };
+      };
+      note?: string;
+    } = {
       success: true,
       datasets,
       meta: {

@@ -67,7 +67,7 @@ const getIconForCategory = (category: string) => {
   }
 }
 
-const apiEndpoints = [
+const _apiEndpoints = [
   {
     method: 'GET',
     endpoint: '/api/datasets',
