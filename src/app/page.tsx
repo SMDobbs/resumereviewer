@@ -1,6 +1,7 @@
 'use client'
 
 import HeroSection from '@/components/landing/HeroSection'
+import ResumeToolShowcase from '@/components/landing/ResumeToolShowcase'
 import WhyAnalystHubWorks from '@/components/landing/WhyAnalystHubWorks'
 import FeaturesSection from '@/components/landing/FeaturesSection'
 import PricingSection from '@/components/landing/PricingSection'
@@ -16,6 +17,11 @@ export default function Home() {
       {/* Hero Section */}
       <div id="home" className="bg-gradient-to-b from-gray-950 to-gray-900">
         <HeroSection />
+      </div>
+      
+      {/* Resume Tool Showcase - Prominent Feature */}
+      <div className="bg-gradient-to-b from-gray-900 via-slate-900 to-gray-900">
+        <ResumeToolShowcase />
       </div>
       
       {/* About Section */}

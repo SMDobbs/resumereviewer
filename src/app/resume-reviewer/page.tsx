@@ -159,7 +159,7 @@ Rate each section from 1-10 and provide specific, actionable feedback.`
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center px-4 py-2 bg-green-400/20 border border-green-400/30 rounded-full mb-6">
             <SparklesIcon className="h-4 w-4 text-green-400 mr-2" />
-            <span className="text-sm font-medium text-green-400">Powered by GPT-4</span>
+            <span className="text-sm font-medium text-green-400">AI-Powered Analysis</span>
           </div>
           <h1 className="text-5xl lg:text-6xl font-bold mb-6 gradient-text">
             AI Resume Reviewer
