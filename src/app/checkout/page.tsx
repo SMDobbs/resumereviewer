@@ -241,7 +241,7 @@ function CheckoutContent() {
         <div className="text-center mt-16">
           <p className="text-gray-500 mb-6">
             {isExistingUser 
-              ? 'Need help? Contact us at support@example.com'
+              ? 'Need help? Contact us at support@analyticsresumereview.com'
               : 'Want to see how it works first?'
             }
           </p>

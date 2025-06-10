@@ -247,14 +247,7 @@ export default function LoginForm() {
               </p>
             </div>
 
-            <div className="text-center">
-              <p className="text-sm text-gray-500">
-                Or try our{' '}
-                <Link href="/tools/skill-assessment" className="font-medium text-green-400 hover:text-green-300">
-                  free skill assessment
-                </Link>
-              </p>
-            </div>
+           
 
             {/* Enhanced Troubleshooting section */}
             <div className="text-center pt-4 border-t border-gray-700">

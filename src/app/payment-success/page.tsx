@@ -212,7 +212,13 @@ function PaymentSuccessContent() {
           {/* Contact Info */}
           <div className="mt-8 pt-6 border-t border-gray-700">
             <p className="text-sm text-gray-500">
-              Need help? Contact us at support@example.com
+              Need help? Contact us at{' '}
+              <a 
+                href="mailto:support@analyticsresumereview.com" 
+                className="text-green-400 hover:text-green-300 transition-colors"
+              >
+                support@analyticsresumereview.com
+              </a>
             </p>
           </div>
         </div>

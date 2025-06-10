@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { UserProvider } from "@/lib/context/UserContext";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -48,9 +49,10 @@ export default function RootLayout({
       <body className="min-h-screen bg-gray-950 text-white antialiased">
         <UserProvider>
           <Navigation />
-          <main className="pt-16">
+          <main className="pt-16 min-h-screen">
             {children}
           </main>
+          <Footer />
         </UserProvider>
         <Analytics />
       </body>
