@@ -73,8 +73,6 @@ export default function TemplatesPage() {
     ? templates 
     : templates.filter(t => t.category === selectedCategory)
 
-  const featuredTemplates = templates.filter(t => t.featured)
-
   const handleDownload = (template: Template) => {
     if (!canUseFeature) {
       // Show authentication/payment modal

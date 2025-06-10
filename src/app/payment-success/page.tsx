@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
@@ -33,16 +33,7 @@ function PaymentSuccessContent() {
   const sessionId = searchParams.get('session_id')
   const { refreshUser } = useUser()
 
-  useEffect(() => {
-    if (sessionId) {
-      verifyPayment(sessionId)
-    } else {
-      setVerificationStatus('error')
-      setLoading(false)
-    }
-  }, [sessionId])
-
-  const verifyPayment = async (sessionId: string) => {
+  const verifyPayment = useCallback(async (sessionId: string) => {
     try {
       const response = await fetch('/api/stripe/verify-session', {
         method: 'POST',
@@ -68,7 +59,16 @@ function PaymentSuccessContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [refreshUser])
+
+  useEffect(() => {
+    if (sessionId) {
+      verifyPayment(sessionId)
+    } else {
+      setVerificationStatus('error')
+      setLoading(false)
+    }
+  }, [sessionId, verifyPayment])
 
   if (loading) {
     return (
