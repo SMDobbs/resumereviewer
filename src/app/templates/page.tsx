@@ -34,12 +34,21 @@ export default function TemplatesPage() {
 
   const templates: Template[] = [
     {
+      id: 'senior-lead-analyst',
+      name: 'Lead Data Analyst',
+      category: 'analytics',
+      description: 'Professional template designed for senior analytics leadership roles with proven results and strategic impact',
+      preview: '/resume_senior.pdf',
+      tags: ['Senior', 'Leadership', 'Analytics', 'ATS-Friendly'],
+      featured: true
+    },
+    {
       id: 'modern-analyst',
       name: 'Modern Data Analyst',
       category: 'analytics',
       description: 'Clean, modern design perfect for data analysts and business intelligence roles',
       preview: '/templates/modern-analyst-preview.jpg',
-      tags: ['ATS-Friendly', 'Modern', 'Analytics'],
+      tags: ['ATS-Friendly', 'Modern', 'Analytics', 'Coming Soon'],
       featured: true
     },
     {
@@ -48,17 +57,8 @@ export default function TemplatesPage() {
       category: 'analytics',
       description: 'Professional template for senior positions and leadership roles',
       preview: '/templates/executive-analyst-preview.jpg',
-      tags: ['Executive', 'Leadership', 'Professional'],
+      tags: ['Executive', 'Leadership', 'Professional', 'Coming Soon'],
       featured: true
-    },
-    {
-      id: 'technical-resume',
-      name: 'Technical Professional',
-      category: 'technical',
-      description: 'Designed for technical roles with emphasis on skills and projects',
-      preview: '/templates/technical-preview.jpg',
-      tags: ['Technical', 'Skills-Focused', 'Projects'],
-      featured: false
     },
   ]
 
@@ -78,8 +78,20 @@ export default function TemplatesPage() {
       // Show authentication/payment modal
       return
     }
-    // This would typically trigger a download
-    alert(`Downloading ${template.name} template...`)
+    
+    // Handle actual file download
+    if (template.id === 'senior-lead-analyst') {
+      // Create a link to download resume_senior.pdf
+      const link = document.createElement('a')
+      link.href = '/resume_senior.pdf'
+      link.download = 'Lead_Data_Analyst_Resume_Template.pdf'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else {
+      // For other templates, show placeholder for now
+      alert(`${template.name} template is coming soon!`)
+    }
   }
 
   const handlePreview = (template: Template) => {
@@ -150,58 +162,100 @@ export default function TemplatesPage() {
 
         {/* All Templates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTemplates.map((template) => (
-            <div key={template.id} className={`glass rounded-2xl overflow-hidden card-hover ${needsPayment ? 'opacity-60' : ''}`}>
-              <div className="relative h-48 bg-gray-800">
-                <div className="absolute inset-0 flex items-center justify-center text-gray-600">
-                  <DocumentTextIcon className="h-16 w-16" />
-                </div>
-                {template.featured && (
-                  <div className="absolute top-3 right-3">
-                    <div className="inline-flex items-center px-2 py-1 bg-green-400/20 border border-green-400/30 rounded-full">
-                      <span className="text-xs font-medium text-green-400">Featured</span>
-                    </div>
+          {filteredTemplates.map((template) => {
+            const isComingSoon = template.tags.includes('Coming Soon')
+            const isDisabled = needsPayment || isComingSoon
+            
+            return (
+              <div key={template.id} className={`glass rounded-2xl overflow-hidden card-hover flex flex-col h-full ${isDisabled ? 'opacity-60' : ''}`}>
+                <div className="relative h-48 bg-gray-800 flex-shrink-0">
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-600">
+                    <DocumentTextIcon className="h-16 w-16" />
                   </div>
-                )}
-                {needsPayment && (
-                  <div className="absolute top-3 left-3">
-                    <div className="w-6 h-6 bg-black/70 rounded-full flex items-center justify-center">
-                      <LockClosedIcon className="h-3 w-3 text-yellow-400" />
+                  {template.featured && !isComingSoon && (
+                    <div className="absolute top-3 right-3">
+                      <div className="inline-flex items-center px-2 py-1 bg-green-400/20 border border-green-400/30 rounded-full">
+                        <span className="text-xs font-medium text-green-400">Featured</span>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-2">{template.name}</h3>
-                <p className="text-gray-400 text-sm mb-3">{template.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {template.tags.map((tag, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-full">
-                      {tag}
-                    </span>
-                  ))}
+                  )}
+                  {isComingSoon && (
+                    <div className="absolute top-3 right-3">
+                      <div className="inline-flex items-center px-2 py-1 bg-orange-400/20 border border-orange-400/30 rounded-full">
+                        <span className="text-xs font-medium text-orange-400">Coming Soon</span>
+                      </div>
+                    </div>
+                  )}
+                  {needsPayment && !isComingSoon && (
+                    <div className="absolute top-3 left-3">
+                      <div className="w-6 h-6 bg-black/70 rounded-full flex items-center justify-center">
+                        <LockClosedIcon className="h-3 w-3 text-yellow-400" />
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2">
+              <div className="p-6 flex flex-col flex-1">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">{template.name}</h3>
+                  <p className="text-gray-400 text-sm mb-4 line-clamp-3 leading-relaxed">{template.description}</p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {template.tags.filter(tag => tag !== 'Coming Soon').map((tag, index) => (
+                      <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-full whitespace-nowrap">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-auto">
                   <button
                     onClick={() => handlePreview(template)}
-                    disabled={needsPayment}
-                    className="flex-1 btn-secondary py-2 px-3 text-sm font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isDisabled}
+                    className="flex-1 btn-secondary py-3 px-4 text-sm font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                   >
-                    {needsPayment ? <LockClosedIcon className="h-4 w-4 mr-1" /> : <EyeIcon className="h-4 w-4 mr-1" />}
-                    Preview
+                    {isComingSoon ? (
+                      <>
+                        <span className="text-orange-400 mr-2">🔜</span>
+                        Preview
+                      </>
+                    ) : needsPayment ? (
+                      <>
+                        <LockClosedIcon className="h-4 w-4 mr-2" />
+                        Preview
+                      </>
+                    ) : (
+                      <>
+                        <EyeIcon className="h-4 w-4 mr-2" />
+                        Preview
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => handleDownload(template)}
-                    disabled={needsPayment}
-                    className="flex-1 btn-primary py-2 px-3 text-sm font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isDisabled}
+                    className="flex-1 btn-primary py-3 px-4 text-sm font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                   >
-                    {needsPayment ? <LockClosedIcon className="h-4 w-4 mr-1" /> : <ArrowDownTrayIcon className="h-4 w-4 mr-1" />}
-                    Download
+                    {isComingSoon ? (
+                      <>
+                        <span className="text-orange-400 mr-2">🔜</span>
+                        Download
+                      </>
+                    ) : needsPayment ? (
+                      <>
+                        <LockClosedIcon className="h-4 w-4 mr-2" />
+                        Download
+                      </>
+                    ) : (
+                      <>
+                        <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                        Download
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Template Guidelines */}
@@ -270,42 +324,78 @@ export default function TemplatesPage() {
 
         {/* Preview Modal */}
         {selectedTemplate && canUseFeature && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <div className="glass rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-              <div className="p-6 border-b border-gray-700">
+          <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
+            <div className="glass rounded-2xl w-full max-w-6xl h-[90vh] overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-gray-700 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-white">{selectedTemplate.name}</h3>
                   <button
                     onClick={() => setSelectedTemplate(null)}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors text-2xl"
                   >
                     ✕
                   </button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <div className="bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-                  <div className="text-center">
-                    <DocumentTextIcon className="h-24 w-24 text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-400">Template preview would display here</p>
-                    <p className="text-sm text-gray-500 mt-2">Full preview available after download</p>
-                  </div>
-                </div>
-                <div className="mt-6 flex gap-4">
-                  <button
-                    onClick={() => handleDownload(selectedTemplate)}
-                    className="btn-primary px-6 py-3 font-semibold flex items-center"
-                  >
-                    <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-                    Download Template
-                  </button>
-                  <button
-                    onClick={() => setSelectedTemplate(null)}
-                    className="btn-secondary px-6 py-3 font-semibold"
-                  >
-                    Close Preview
-                  </button>
-                </div>
+              <div className="flex-1 flex flex-col">
+                {selectedTemplate.id === 'senior-lead-analyst' ? (
+                  <>
+                    <div className="flex-1 bg-gray-800 rounded-lg overflow-hidden m-6">
+                      <iframe
+                        src="/resume_senior.pdf"
+                        className="w-full h-full"
+                        title="Resume Preview"
+                      />
+                    </div>
+                    <div className="p-6 pt-0 flex gap-4 flex-wrap">
+                      <button
+                        onClick={() => window.open('/resume_senior.pdf', '_blank')}
+                        className="btn-secondary px-6 py-3 font-semibold flex items-center"
+                      >
+                        <EyeIcon className="h-5 w-5 mr-2" />
+                        View Full Screen
+                      </button>
+                      <button
+                        onClick={() => handleDownload(selectedTemplate)}
+                        className="btn-primary px-6 py-3 font-semibold flex items-center"
+                      >
+                        <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                        Download Template
+                      </button>
+                      <button
+                        onClick={() => setSelectedTemplate(null)}
+                        className="btn-secondary px-6 py-3 font-semibold"
+                      >
+                        Close Preview
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex-1 bg-gray-800 rounded-lg flex items-center justify-center m-6">
+                      <div className="text-center">
+                        <DocumentTextIcon className="h-24 w-24 text-gray-600 mx-auto mb-4" />
+                        <p className="text-gray-400">Template preview would display here</p>
+                        <p className="text-sm text-gray-500 mt-2">Full preview available after download</p>
+                      </div>
+                    </div>
+                    <div className="p-6 pt-0 flex gap-4">
+                      <button
+                        onClick={() => handleDownload(selectedTemplate)}
+                        className="btn-primary px-6 py-3 font-semibold flex items-center"
+                      >
+                        <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                        Download Template
+                      </button>
+                      <button
+                        onClick={() => setSelectedTemplate(null)}
+                        className="btn-secondary px-6 py-3 font-semibold"
+                      >
+                        Close Preview
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
