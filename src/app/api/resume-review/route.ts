@@ -8,10 +8,6 @@ async function createPDFParser() {
   return new PDFParser()
 }
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
-
 interface PDFTextRun {
   T: string
 }
@@ -238,6 +234,10 @@ Analyze this resume against the job criteria. Respond with ONLY the JSON structu
 
     // Call OpenAI API
     try {
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+      })
+
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
