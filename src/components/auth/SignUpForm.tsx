@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { SparklesIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, EyeIcon, EyeSlashIcon, DocumentTextIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 
 export default function SignUpForm() {
   const [formData, setFormData] = useState({
@@ -69,13 +69,13 @@ export default function SignUpForm() {
         {/* Header */}
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-400/25">
-            <SparklesIcon className="h-8 w-8 text-white" />
+            <DocumentTextIcon className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-white mb-3">
-            Start Your Analytics Journey
+            Perfect Your Resume
           </h2>
           <p className="text-gray-400 text-lg">
-            Join thousands of professionals accelerating their careers
+            Get AI-powered feedback and professional templates
           </p>
         </div>
 
@@ -92,12 +92,12 @@ export default function SignUpForm() {
           <div className="text-center mb-8">
             <div className="inline-flex items-center bg-green-400/10 text-green-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <SparklesIcon className="h-4 w-4 mr-2" />
-              Premium Access
+              Resume Tools
             </div>
             <div className="text-4xl font-bold text-white mb-2">
-              $19.99<span className="text-xl text-gray-400 font-normal"> one-time</span>
+              $4.99<span className="text-xl text-gray-400 font-normal"> one-time</span>
             </div>
-            <p className="text-gray-400 text-sm">Lifetime access • No recurring charges</p>
+            <p className="text-gray-400 text-sm">Pay once • Use 5 times • Never expires</p>
           </div>
 
           {/* Form */}
@@ -200,7 +200,7 @@ export default function SignUpForm() {
                   Processing...
                 </div>
               ) : (
-                'Get Premium Access'
+                'Get Resume Tools - $4.99'
               )}
             </button>
 
@@ -224,22 +224,30 @@ export default function SignUpForm() {
         </div>
 
         {/* What You Get */}
-        <div className="text-center space-y-3">
-          <p className="text-sm font-medium text-gray-400">What you get:</p>
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
-            <span>• Lifetime access to all tools</span>
-            <span>• Premium career guides</span>
-            <span>• Coaching sessions</span>
-            <span>• Priority support</span>
+        <div className="glass rounded-xl p-6 border border-gray-700/50">
+          <p className="text-sm font-medium text-gray-300 mb-4 text-center">What you get for $4.99:</p>
+          <div className="space-y-3">
+            {[
+              "5 AI-powered resume reviews",
+              "Access to all premium templates",
+              "ATS optimization analysis",
+              "Detailed scoring & feedback",
+              "Keyword recommendations"
+            ].map((feature, index) => (
+              <div key={index} className="flex items-center text-sm text-gray-400">
+                <CheckCircleIcon className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
+                {feature}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Free Resources Link */}
+        {/* Preview Link */}
         <div className="text-center">
           <p className="text-sm text-gray-500">
-            Want to explore first?{' '}
-            <Link href="/articles" className="text-green-400 hover:text-green-300 font-medium">
-              Check out our free resources
+            Want to see how it works first?{' '}
+            <Link href="/resume-reviewer" className="text-green-400 hover:text-green-300 font-medium">
+              Preview the tool
             </Link>
           </p>
         </div>

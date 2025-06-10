@@ -10,6 +10,7 @@ export interface User {
   lastName: string | null
   role: string
   subscriptionStatus: string
+  remainingReviews?: number
   currentRole: string | null
   experience: number | null
   industry: string | null

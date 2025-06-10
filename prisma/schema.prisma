@@ -28,6 +28,9 @@ model User {
   subscriptionStatus SubscriptionStatus @default(TRIAL)
   purchaseDate       DateTime?  // When they bought premium access
   
+  // Resume Review System
+  remainingReviews   Int      @default(0)  // Number of resume reviews remaining
+  
   // Profile info
   currentRole        String?
   experience         Int?                // Years of experience
@@ -38,6 +41,7 @@ model User {
   courseProgress     CourseProgress[]
   toolUsage         ToolUsage[]
   sqlAssessments    SQLAssessmentResult[]
+  resumeReviews     ResumeReview[]      // New: Resume reviews
   
   // API access
   apiKeys           ApiKey[]
@@ -225,6 +229,37 @@ model ApiKey {
   updatedAt   DateTime @updatedAt
   
   @@map("api_keys")
+}
+
+model ResumeReview {
+  id            String   @id @default(cuid())
+  userId        String
+  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // File info
+  fileName      String
+  fileType      String
+  fileSize      Int
+  
+  // Analysis results
+  overallScore  Float?
+  contentScore  Float?
+  formattingScore Float?
+  atsScore      Float?
+  keywordScore  Float?
+  
+  // AI Feedback
+  aiFeedback    Json     // Structured feedback from OpenAI
+  suggestions   Json?    // Improvement suggestions
+  
+  // Metadata
+  processingStatus String @default("processing") // processing, completed, failed
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("resume_reviews")
 }
 
 // Enums

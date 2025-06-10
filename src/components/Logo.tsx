@@ -24,8 +24,8 @@ export default function Logo({ variant = 'navbar', showText = true, size = 'md' 
   const iconComponent = (
     <div className={`${sizeClasses[size]} relative rounded-xl overflow-hidden shadow-lg group-hover:shadow-green-400/25 transition-all duration-300`}>
       <Image
-        src="/logo.png"
-        alt="Dobbs Analytics Coaching Logo"
+        src="/logo.svg"
+        alt="Analytics Resume Review Logo"
         fill
         className="object-contain"
         priority
@@ -44,7 +44,7 @@ export default function Logo({ variant = 'navbar', showText = true, size = 'md' 
         {showText && (
           <div>
             <div className={`font-bold gradient-text ${textSizeClasses[size]}`}>
-              Dobbs Analytics Coaching
+              Analytics Resume Review
             </div>
           </div>
         )}
@@ -59,7 +59,7 @@ export default function Logo({ variant = 'navbar', showText = true, size = 'md' 
       {showText && (
         <div className="flex items-center space-x-2">
           <span className={`font-bold gradient-text ${textSizeClasses[size]}`}>
-            Dobbs Analytics Coaching
+            Analytics Resume Review
           </span>
         </div>
       )}

@@ -121,6 +121,31 @@ async function extractTextFromBuffer(buffer: Buffer, fileType: string, fileName:
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication and remaining reviews
+    const authResponse = await fetch(`${request.nextUrl.origin}/api/auth/me`, {
+      headers: {
+        cookie: request.headers.get('cookie') || '',
+      },
+    })
+
+    if (!authResponse.ok) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
+    const { user } = await authResponse.json()
+    
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 401 })
+    }
+
+    // Check if user has remaining reviews
+    if (user.remainingReviews === undefined || user.remainingReviews <= 0) {
+      return NextResponse.json({ 
+        error: 'No remaining reviews. Please purchase more reviews to continue.',
+        needsPayment: true 
+      }, { status: 402 })
+    }
+
     const formData = await request.formData()
     const file = formData.get('resume') as File
     const jobCriteria = formData.get('jobCriteria') as string
@@ -297,12 +322,28 @@ Analyze this resume against the job criteria. Respond with ONLY the JSON structu
         }
       }
 
+      // Decrement remaining reviews after successful analysis
+      try {
+        await fetch(`${request.nextUrl.origin}/api/user/decrement-review`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            cookie: request.headers.get('cookie') || '',
+          },
+          body: JSON.stringify({ userId: user.id }),
+        })
+      } catch (error) {
+        console.error('Failed to decrement review count:', error)
+        // Don't fail the request if we can't decrement - user already got their analysis
+      }
+
       return NextResponse.json({
         success: true,
         analysis: analysisResult,
         resumeLength: resumeText.length,
         fileType: file.type,
-        fileName: file.name
+        fileName: file.name,
+        remainingReviews: Math.max(0, (user.remainingReviews || 0) - 1)
       })
 
     } catch (openaiError: unknown) {

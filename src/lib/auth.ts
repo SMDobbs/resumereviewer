@@ -92,6 +92,7 @@ export async function getCurrentUser(request: NextRequest) {
         lastName: true,
         role: true,
         subscriptionStatus: true,
+        remainingReviews: true,
         currentRole: true,
         experience: true,
         industry: true,

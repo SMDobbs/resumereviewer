@@ -1,27 +1,15 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="overlayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.1" />
-      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    <linearGradient id="documentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
     </linearGradient>
   </defs>
-  
-  <!-- Main background -->
-  <rect width="32" height="32" rx="7" fill="url(#logoGradient)"/>
-  
-  <!-- Material Icons insert_chart style bars -->
-  <rect x="7" y="18" width="3" height="8" fill="white" rx="0.5"/>
-  <rect x="12" y="14" width="3" height="12" fill="white" rx="0.5"/>
-  <rect x="17" y="10" width="3" height="16" fill="white" rx="0.5"/>
-  <rect x="22" y="16" width="3" height="10" fill="white" rx="0.5"/>
-  
-  <!-- Chart base line -->
-  <rect x="6" y="26" width="20" height="1" fill="white" opacity="0.4"/>
-  
-  <!-- Subtle overlay -->
-  <rect width="32" height="32" rx="7" fill="url(#overlayGradient)"/>
+  <rect width="32" height="32" rx="6" fill="url(#documentGradient)"/>
+  <path d="M8 6h12l4 4v16a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z" fill="white"/>
+  <path d="M20 6v4h4" stroke="white" stroke-width="1" fill="none"/>
+  <line x1="10" y1="14" x2="22" y2="14" stroke="#10b981" stroke-width="1"/>
+  <line x1="10" y1="17" x2="22" y2="17" stroke="#10b981" stroke-width="1"/>
+  <line x1="10" y1="20" x2="18" y2="20" stroke="#10b981" stroke-width="1"/>
+  <line x1="10" y1="23" x2="20" y2="23" stroke="#10b981" stroke-width="1"/>
 </svg> 
