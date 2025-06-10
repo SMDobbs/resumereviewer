@@ -24,7 +24,7 @@ export default function Logo({ variant = 'navbar', showText = true, size = 'md' 
   const iconComponent = (
     <div className={`${sizeClasses[size]} relative rounded-xl overflow-hidden shadow-lg group-hover:shadow-green-400/25 transition-all duration-300`}>
       <Image
-        src="/logo.svg"
+        src="/document.svg"
         alt="Analytics Resume Review Logo"
         fill
         className="object-contain"

@@ -198,9 +198,9 @@ export default function TemplatesPage() {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">{template.name}</h3>
                   <p className="text-gray-400 text-sm mb-4 line-clamp-3 leading-relaxed">{template.description}</p>
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  <div className="flex flex-wrap items-center gap-2 mb-6 min-h-[32px]">
                     {template.tags.filter(tag => tag !== 'Coming Soon').map((tag, index) => (
-                      <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-full whitespace-nowrap">
+                      <span key={index} className="inline-flex items-center px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-full whitespace-nowrap">
                         {tag}
                       </span>
                     ))}
